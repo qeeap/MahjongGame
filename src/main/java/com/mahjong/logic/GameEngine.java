@@ -84,7 +84,6 @@ public class GameEngine {
         return first.getImageName().equals(second.getImageName()); // если картики совпадают, то true вернет
 
     }
-
     /**
      * Возвращает подсказку — первую найденную возможную пару.
      *
