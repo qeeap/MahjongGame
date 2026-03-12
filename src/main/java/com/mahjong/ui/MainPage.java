@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 public class MainPage extends Application {
 
     @Override
+
     public void start(Stage primaryStage) {
         // Создаем текст
         Text welcomeText = new Text("Добро пожаловать в Маджонг!");
