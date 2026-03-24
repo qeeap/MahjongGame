@@ -4,7 +4,6 @@ import com.mahjong.model.Board;
 import com.mahjong.model.Tile;
 
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * GameEngine содержит всю логику правил игры Маджонг.
@@ -45,11 +44,8 @@ public class GameEngine {
         boolean hasLeft = !left.isEmpty();
         boolean hasRight = !right.isEmpty();
 
-        if (hasLeft && hasRight){
-            return false; //если слева справа занято, то плитка недоступна
-        }
-
-        return true; // если хотя бы с одной стороны свободно - плитку вытаскиваем
+        return !hasLeft || !hasRight; //если слева справа занято, то плитка недоступна
+        // если хотя бы с одной стороны свободно - плитку вытаскиваем
     }
 
     /**
@@ -118,12 +114,12 @@ public class GameEngine {
     public static Tile[] getHint(Board board){
         List<Tile> activeTile = board.getActiveTiles();
 
-        for (int i = 0; i < activeTile.size(); i++){
+        for (int i = 0; i < activeTile.size(); i++) {
             Tile first = activeTile.get(i);
-            for (int j = i + 1; j < activeTile.size(); j++){
+            for (int j = i + 1; j < activeTile.size(); j++) {
                 Tile second = activeTile.get(j);
-                if (canFormPair(board, first, second)){
-                    return  new Tile[]{first, second}; // свободная пара
+                if (canFormPair(board, first, second)) {
+                    return new Tile[]{first, second}; // свободная пара
                 }
             }
         }
