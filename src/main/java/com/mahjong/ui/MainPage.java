@@ -237,8 +237,6 @@ public class MainPage extends Application {
         level3Button.setVisible(true);
         level4Button.setVisible(true);
     }
-
-
     /**
      * Запускает игру с выбранным уровнем
      */
