@@ -89,32 +89,36 @@ public class LevelSelectionView extends StackPane {
         double screenHeight = ScreenUtils.getScreenHeight();
 
         double centerX = screenWidth / 2;
-        double startY = screenHeight / 3;
-        double offsetX = 280;
-        double offsetY = 100;
+        double centerY = screenHeight / 2;
+        double offset = levelPyramid.getBoundsInLocal().getHeight() / 6;
+        double offsetY = offset / 2;
 
         StackPane.setAlignment(backButton, Pos.TOP_LEFT);
         backButton.setTranslateX(screenWidth / 30);
         backButton.setTranslateY(screenHeight / 30);
 
         StackPane.setAlignment(levelDragon, Pos.TOP_LEFT);
-        levelDragon.setTranslateX(centerX - offsetX);
-        levelDragon.setTranslateY(startY);
+        levelDragon.setTranslateX(centerX - levelDragon.getBoundsInLocal().getWidth() - offset);
+        levelDragon.setTranslateY(centerY - levelDragon.getBoundsInLocal().getHeight() - offsetY);
+
+        System.out.println(centerX - levelDragon.getBoundsInLocal().getWidth() - offset);
 
         // Ряд 1, колонка 2 (правый верхний угол)
         StackPane.setAlignment(levelPyramid, Pos.TOP_LEFT);
-        levelPyramid.setTranslateX(centerX + offsetX - levelPyramid.getFitWidth());
-        levelPyramid.setTranslateY(startY);
+        levelPyramid.setTranslateX(centerX + offset);
+        levelPyramid.setTranslateY(centerY - levelPyramid.getBoundsInLocal().getHeight() - offsetY);
+
+        System.out.println(centerX + offset);
 
         // Ряд 2, колонка 1 (левый нижний угол)
         StackPane.setAlignment(levelButterfly, Pos.TOP_LEFT);
-        levelButterfly.setTranslateX(centerX - offsetX);
-        levelButterfly.setTranslateY(startY + offsetY);
+        levelButterfly.setTranslateX(centerX - levelButterfly.getBoundsInLocal().getWidth() - offset);
+        levelButterfly.setTranslateY(centerY + offsetY);
 
         // Ряд 2, колонка 2 (правый нижний угол)
         StackPane.setAlignment(levelSpider, Pos.TOP_LEFT);
-        levelSpider.setTranslateX(centerX + offsetX - levelSpider.getFitWidth());
-        levelSpider.setTranslateY(startY + offsetY);
+        levelSpider.setTranslateX(centerX + offset);
+        levelSpider.setTranslateY(centerY + offsetY);
 
         // Добавляем все элементы
         getChildren().addAll(levelDragon, levelPyramid, levelButterfly, levelSpider, backButton);
@@ -127,3 +131,4 @@ public class LevelSelectionView extends StackPane {
     public ImageView getLevelSpider() { return levelSpider; }
     public ImageView getBackButton() { return backButton; }
 }
+

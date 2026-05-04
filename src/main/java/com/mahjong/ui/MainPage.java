@@ -19,7 +19,7 @@ public class MainPage extends Application {
     public void start(Stage primaryStage) {
 
         Image mainPage = new Image(
-                getClass().getResourceAsStream("/images/mainpage_back.jpg")
+                getClass().getResourceAsStream("/images/mainpage_back_lb.jpg")
         );
 
         if (mainPage == null) {
@@ -60,3 +60,5 @@ public class MainPage extends Application {
         launch(args);
     }
 }
+
+
