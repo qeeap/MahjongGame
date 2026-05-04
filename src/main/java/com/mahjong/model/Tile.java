@@ -12,14 +12,16 @@ public class Tile {
     private final int x; // коорд x
     private final int y; // коорд y
     private final int z; // коорд z - слой
+    private final String shift; // смещение плитки
     private boolean isRemoved; // удалена ли плитка
 
-    public Tile(int id, String imageName, int x, int y, int z){
+    public Tile(int id, String imageName, int x, int y, int z, String shift){
         this.id = id;
         this.imageName = imageName;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.shift = shift; // смещение плитки
         this.isRemoved = false; // так как в самом начале плитка на месте
     }
 
@@ -42,6 +44,8 @@ public class Tile {
     public int getZ() {
         return z;
     }
+
+    public  String getShift() {return shift;}
 
     public boolean isRemoved() {
         return isRemoved;
@@ -72,7 +76,7 @@ public class Tile {
         return "Tile{" +
                 "id=" + id +
                 ", name='" + imageName + '\'' +
-                ", pos=(" + x + "," + y + "," + z + ")" +
+                ", pos=(" + x + "," + y + "," + z + "," + shift + ")" +
                 ", removed=" + isRemoved +
                 '}';
     }
@@ -80,8 +84,8 @@ public class Tile {
     // TECT
     public static void main(String[] args) {
         System.out.println("Тестируем класс Tile:");
-        Tile tile1 = new Tile(1, "bamboo1", 100, 100, 0);
-        Tile tile2 = new Tile(2, "bamboo2", 180, 100, 0);
+        Tile tile1 = new Tile(1, "bamboo1", 100, 100, 0, "right");
+        Tile tile2 = new Tile(2, "bamboo2", 180, 100, 0, "right");
 
         System.out.println(tile1);
         System.out.println(tile2);
@@ -91,7 +95,7 @@ public class Tile {
         System.out.println("После удаления tile1: " + tile1.isRemoved());
 
         // Проверяем сравнение
-        Tile tile1copy = new Tile(1, "bamboo1", 100, 100, 0);
+        Tile tile1copy = new Tile(1, "bamboo1", 100, 100, 0, "right");
         System.out.println("tile1 равен tile1copy? " + tile1.equals(tile1copy)); // Должно быть true, т.к. id одинаковый
     }
 }
