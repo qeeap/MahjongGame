@@ -125,33 +125,6 @@ public class GameEngine {
         }
         return null; // нет подсказок
     }
-
-    /**
-     * Временный метод для тестирования (можно удалить потом).
-     */
-
-    public static void main(String[] args){
-        Board board = new Board();
-
-        Tile tile1 = new Tile(1, "bamboo1", 1, 0, 0);
-        Tile tile2 = new Tile(2, "bamboo1", 1, 0, 1);
-        board.addTile(tile1);
-        board.addTile(tile2);
-
-        System.out.println("плитка 1 свободна?" + isTileFree(board, tile1));
-        System.out.println("плитка 2 свободна?" + isTileFree(board, tile2));
-        System.out.println("Можно составить пару?" + canFormPair(board, tile1, tile2));
-        System.out.println("Есть ходы?" + hasAnyMove(board));
-
-        Tile[] hint = getHint(board);
-        if (hint != null){
-            System.out.println("Подсказка: " + hint[0].getId() + " и " + hint[1].getId());
-        }
-
-
-
-    }
-
 }
 
 

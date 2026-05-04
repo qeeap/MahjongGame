@@ -180,11 +180,11 @@ public class Board {
         System.out.println("Создана пустая доска: " + board);
 
         // Добавляем плитки
-        board.addTile(new Tile(1, "bamboo1", 0, 0, 0));
-        board.addTile(new Tile(2, "bamboo2", 1, 0, 0));
-        board.addTile(new Tile(3, "bamboo1", 2, 0, 0));
-        board.addTile(new Tile(4, "dragonRed", 0, 1, 0));
-        board.addTile(new Tile(5, "dragonRed", 1, 1, 0));
+        board.addTile(new Tile(1, "bamboo1", 0, 0, 0, "none")); //исправила создание плитки
+        board.addTile(new Tile(2, "bamboo2", 1, 0, 0, "none"));
+        board.addTile(new Tile(3, "bamboo1", 2, 0, 0, "none"));
+        board.addTile(new Tile(4, "dragonRed", 0, 1, 0, "none"));
+        board.addTile(new Tile(5, "dragonRed", 1, 1, 0, "none"));
 
         System.out.println("После добавления 5 плиток: " + board);
         System.out.println("Активные плитки: " + board.getActiveTiles().size());
