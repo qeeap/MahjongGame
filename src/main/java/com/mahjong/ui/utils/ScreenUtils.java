@@ -7,8 +7,8 @@ public class ScreenUtils {
     private static double screenHeight;
 
     public static void updateScreenSize() {
-        screenWidth = Screen.getPrimary().getBounds().getWidth();
-        screenHeight = Screen.getPrimary().getBounds().getHeight();
+        screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
+        screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
     }
 
     public static double getScreenWidth() {
@@ -29,5 +29,3 @@ public class ScreenUtils {
         return getScreenHeight() / 2;
     }
 }
-
-
