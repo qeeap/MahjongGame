@@ -131,3 +131,4 @@ public class LevelSelectionView extends StackPane {
     public ImageView getLevelSpider() { return levelSpider; }
     public ImageView getBackButton() { return backButton; }
 }
+

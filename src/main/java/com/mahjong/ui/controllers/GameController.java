@@ -37,3 +37,4 @@ public class GameController {
         gameFieldView.setVisible(false);
     }
 }
+

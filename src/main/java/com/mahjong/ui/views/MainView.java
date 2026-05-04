@@ -88,3 +88,4 @@ public class MainView extends StackPane{
     public ImageView getExitButton() { return exitButton; }
 }
 
+

@@ -70,3 +70,4 @@ public class GameFieldView extends Pane {
 
     public ImageView getBackButton() { return backButton; }
 }
+

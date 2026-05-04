@@ -9,3 +9,4 @@ public class Main {
         com.mahjong.model.Tile.main(args);
     }
 }
+
