@@ -22,7 +22,7 @@ public  class LevelLoader {
     private static final String[] ALL_TILES = {
             "bamboos1", "bamboos2", "bamboos3", "bamboos4", "bamboos5", "bamboos6", "bamboos7", "bamboos8", "bamboos9",
             "characters1", "characters2", "characters3", "characters4", "characters5", "characters6", "characters7", "characters8", "characters9",
-            "cirles1", "cirles2", "cirles3", "cirles4", "cirles5", "cirles6", "cirles7", "cirles8", "cirles9",
+            "circles1", "circles2", "circles3", "circles4", "circles5", "circles6", "circles7", "circles8", "circles9",
             "east", "south", "west", "north",
             "dragonRed", "dragonGreen", "dragonWhite"
     };
