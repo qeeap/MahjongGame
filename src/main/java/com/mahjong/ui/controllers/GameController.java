@@ -1,5 +1,6 @@
 package com.mahjong.ui.controllers;
 
+import com.mahjong.model.Board;
 import com.mahjong.model.Tile;
 import com.mahjong.ui.views.GameFieldView;
 import javafx.scene.layout.StackPane;
@@ -11,6 +12,7 @@ public class GameController {
     private GameFieldView gameFieldView;
     private String currentLevel;
     private Runnable onBackCallback;  // колбэк для возврата в меню
+    private Board currentBoard;
 
     public GameController(StackPane root, Runnable onBackCallback) {
         this.gameFieldView = new GameFieldView();
@@ -27,6 +29,14 @@ public class GameController {
                 onBackCallback.run();
             }
         });
+    }
+
+    public void loadBoard(Board board) {
+        this.currentBoard = board;
+        gameFieldView.renderBoard(board);
+
+        // Выводим информацию о загруженной доске
+        System.out.println("Загружена доска: " + board.getActiveCount() + " активных плиток");
     }
 
     public void show() {

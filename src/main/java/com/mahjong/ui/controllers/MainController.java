@@ -1,8 +1,10 @@
 package com.mahjong.ui.controllers;
 
+import com.mahjong.model.Board;
 import com.mahjong.ui.views.GameFieldView;
 import com.mahjong.ui.views.MainView;
 import com.mahjong.ui.views.LevelSelectionView;
+import com.mahjong.utils.LevelLoader;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -44,22 +46,22 @@ public class MainController {
 
         levelSelectView.getLevelDragon().setOnMouseClicked(event -> {
             System.out.println("Выбран уровень: Дракон");
-            startGame("turtle");
+            startGame("dragon");
         });
 
         levelSelectView.getLevelPyramid().setOnMouseClicked(event -> {
             System.out.println("Выбран уровень: Пирамида");
-            startGame("snake");
+            startGame("pyramid");
         });
 
-        levelSelectView.getLevelButterfly().setOnMouseClicked(event -> {
-            System.out.println("Выбран уровень: Бабочка");
-            startGame("dragon");
+        levelSelectView.getLevelTurtle().setOnMouseClicked(event -> {
+            System.out.println("Выбран уровень: Черепаха");
+            startGame("turtle");
         });
 
         levelSelectView.getLevelSpider().setOnMouseClicked(event -> {
             System.out.println("Выбран уровень: Паук");
-            startGame("butterfly");
+            startGame("spider");
         });
 
         levelSelectView.getBackButton().setOnMouseClicked(event -> {
@@ -88,9 +90,25 @@ public class MainController {
     }
 
     private void startGame(String levelFileName) {
+        // 1. Строим путь к JSON файлу
+        String jsonPath = "levels/" + levelFileName + ".json";
+        System.out.println("Загрузка уровня: " + jsonPath);
+
+        // 2. Загружаем доску через LevelLoader
+        Board board = LevelLoader.loadLevel(jsonPath);
+
+        // 3. Проверяем, загрузилась ли доска
+        if (board == null || board.getActiveCount() == 0) {
+            System.err.println("Ошибка: уровень не загружен!");
+            return;
+        }
+
+        // 4. Передаём доску в GameController
+        gameController.loadBoard(board);
+
+        // 5. Показываем игровое поле
         mainView.setVisible(false);
         levelSelectView.setVisible(false);
-
         gameController.show();
     }
 }
