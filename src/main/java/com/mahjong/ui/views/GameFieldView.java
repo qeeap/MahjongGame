@@ -11,20 +11,22 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameFieldView extends Pane {
-    double screenWidth = ScreenUtils.getScreenWidth();
-    double screenHeight = ScreenUtils.getScreenHeight();
     private ImageView backButton;
     private Rectangle gameBoardRect;
     private Board currentBoard;
     private Pane tilesLayer;
-    private static final double TILE_HEIGHT = 80;
+    private double tileHeight;
 
     private List<Tile> tiles;
 
     public GameFieldView() {
+        tileHeight = ScreenUtils.getScreenWidth() / 20;
+
         tilesLayer = new Pane();
         tilesLayer.setStyle("-fx-background-color: transparent;");
         createUI();
@@ -74,44 +76,114 @@ public class GameFieldView extends Pane {
     }
 
     public void renderBoard(Board board) {
+        System.out.println(tileHeight);
         this.currentBoard = board;
-        tilesLayer.getChildren().clear();  // очищаем старые плитки
+        tilesLayer.getChildren().clear();
 
-        // Получаем все активные плитки
-        for (Tile tile : board.getActiveTiles()) {
+        List<Tile> activeTiles = board.getActiveTiles();
+        if (activeTiles.isEmpty()) {
+            System.out.println("Нет активных плиток для отображения");
+            return;
+        }
+
+        // 1. Находим границы доски в координатах плиток
+        int minX = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxY = Integer.MIN_VALUE;
+
+        for (Tile tile : activeTiles) {
+            int x = tile.getX();
+            int y = tile.getY();
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+        }
+
+        // 2. Сначала создаём все плитки (без позиционирования), чтобы получить их реальные размеры
+        List<ImageView> tileViews = new ArrayList<>();
+        for (Tile tile : activeTiles) {
             ImageView tileView = createTileImageView(tile);
-            // Позиционируем по координатам из модели
-            tileView.setTranslateX(tile.getX());
-            tileView.setTranslateY(tile.getY());
+            tileViews.add(tileView);
+        }
+
+        // 3. Берём размер первой плитки (все плитки одного размера)
+        double tileWidth = tileViews.get(0).getBoundsInLocal().getWidth();
+        double tileHeight = tileViews.get(0).getBoundsInLocal().getHeight();
+
+        // 4. Пиксельные размеры всей доски
+        int tilesInRow = maxX - minX + 1;
+        int tilesInColumn = maxY - minY + 1;
+        double boardPixelWidth = tilesInRow * tileWidth;
+        double boardPixelHeight = tilesInColumn * tileHeight;
+
+        // 5. Позиция прямоугольника (игровой области)
+        double boardRectX = gameBoardRect.getTranslateX();
+        double boardRectY = gameBoardRect.getTranslateY();
+        double boardRectWidth = gameBoardRect.getWidth();
+        double boardRectHeight = gameBoardRect.getHeight();
+
+        // 6. Стартовая позиция для центрирования доски внутри прямоугольника
+        double startX = boardRectX + (boardRectWidth - boardPixelWidth) / 2;
+        double startY = boardRectY + (boardRectHeight - boardPixelHeight) / 2;
+
+        System.out.println("Реальный размер плитки: " + (int)tileWidth + " x " + (int)tileHeight);
+        System.out.println("Доска: " + tilesInRow + " x " + tilesInColumn + " плиток");
+        System.out.println("Старт: (" + (int)startX + ", " + (int)startY + ")");
+
+        // 7. Позиционируем и добавляем плитки
+        for (int i = 0; i < activeTiles.size(); i++) {
+            Tile tile = activeTiles.get(i);
+            ImageView tileView = tileViews.get(i);
+
+            // Вычисляем позицию с учётом центрирования
+            double pixelX = startX + (tile.getX() - minX) * tileWidth;
+            double pixelY = startY + (tile.getY() - minY) * tileHeight;
+
+            // Учитываем смещение (shift)
+            String shift = tile.getShift();
+            if ("down".equals(shift)) {
+                pixelY += tileHeight / 2;
+            } else if ("right_down".equals(shift)) {
+                pixelX += tileWidth / 2;
+                pixelY += tileHeight / 2;
+            }
+
+            // Учитываем слой (верхние плитки чуть выше)
+            pixelY -= tile.getZ() * 4;
+
+            tileView.setTranslateX(pixelX);
+            tileView.setTranslateY(pixelY);
+
             tilesLayer.getChildren().add(tileView);
         }
 
-        System.out.println("Отображено плиток: " + board.getActiveCount());
+        System.out.println("Отображено плиток: " + activeTiles.size());
     }
 
     /**
      * Создаёт визуальное представление одной плитки
      */
     private ImageView createTileImageView(Tile tile) {
-        // 🔥 СТРОИМ ПУТЬ К КАРТИНКЕ
         String imagePath = buildImagePath(tile.getImageName());
 
         ImageView imageView = new ImageView();
-
         try {
             Image img = new Image(getClass().getResourceAsStream(imagePath));
             imageView.setImage(img);
 
-            // 🔥 УСТАНАВЛИВАЕМ ВЫСОТУ, ШИРИНА ПОДСТРОИТСЯ АВТОМАТИЧЕСКИ
-            imageView.setFitHeight(TILE_HEIGHT);
-            imageView.setPreserveRatio(true);  // сохраняем пропорции
+            // 🔥 ИСПОЛЬЗУЕМ ЗАДАННУЮ ВЫСОТУ
+            imageView.setFitHeight(tileHeight);
+            imageView.setPreserveRatio(true);  // ширина подстроится автоматически
+
 
         } catch (Exception e) {
-            // Если картинки нет — заглушка
             System.err.println("Не загружена картинка: " + imagePath);
+            // Заглушка: фиксированный размер, чтобы было видно
             imageView.setStyle("-fx-background-color: #f5deb3; -fx-border-color: #8b4513; -fx-border-width: 2;");
-            imageView.setFitHeight(TILE_HEIGHT);
-            imageView.setFitWidth(60);  // примерная ширина для заглушки
+            imageView.setFitHeight(70);
+            imageView.setFitWidth(50);
         }
 
         // Эффект тени
@@ -153,8 +225,8 @@ public class GameFieldView extends Pane {
             String num = imageName.substring(10);
             return basePath + "characters/" + num + ".png";
         }
-        if (imageName.startsWith("cirles")) {
-            String num = imageName.substring(6);
+        if (imageName.startsWith("circles")) {
+            String num = imageName.substring(7);
             return basePath + "circles/" + num + ".png";
         }
         if (imageName.startsWith("dragon")) {

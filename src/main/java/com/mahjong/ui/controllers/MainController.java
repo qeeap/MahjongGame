@@ -77,6 +77,7 @@ public class MainController {
 
     }
 
+
     private void showMainMenu() {
         mainView.setVisible(true);
         levelSelectView.setVisible(false);

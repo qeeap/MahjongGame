@@ -31,6 +31,7 @@ public class GameController {
         });
     }
 
+
     public void loadBoard(Board board) {
         this.currentBoard = board;
         gameFieldView.renderBoard(board);

@@ -93,6 +93,7 @@ public class LevelSelectionView extends StackPane {
         double offset = levelPyramid.getBoundsInLocal().getHeight() / 6;
         double offsetY = offset / 2;
 
+
         StackPane.setAlignment(backButton, Pos.TOP_LEFT);
         backButton.setTranslateX(screenWidth / 30);
         backButton.setTranslateY(screenHeight / 30);
