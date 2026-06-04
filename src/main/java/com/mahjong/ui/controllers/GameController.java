@@ -1,5 +1,6 @@
 package com.mahjong.ui.controllers;
 
+import com.mahjong.logic.GameEngine;
 import com.mahjong.model.Board;
 import com.mahjong.model.Tile;
 import com.mahjong.ui.views.GameFieldView;
@@ -13,6 +14,7 @@ public class GameController {
     private String currentLevel;
     private Runnable onBackCallback;  // колбэк для возврата в меню
     private Board currentBoard;
+    private Tile selectedTile = null;
 
     public GameController(StackPane root, Runnable onBackCallback) {
         this.gameFieldView = new GameFieldView();
@@ -29,15 +31,46 @@ public class GameController {
                 onBackCallback.run();
             }
         });
+
+        gameFieldView.setOnTileClick(this::handleTileClick);
     }
 
 
     public void loadBoard(Board board) {
         this.currentBoard = board;
+        this.selectedTile = null;
         gameFieldView.renderBoard(board);
 
         // Выводим информацию о загруженной доске
         System.out.println("Загружена доска: " + board.getActiveCount() + " активных плиток");
+    }
+
+    /**
+     * 🔥 ПРОСТАЯ ОБРАБОТКА: удаляем только доступные плитки
+     */
+    private void handleTileClick(Tile clickedTile) {
+        if (clickedTile.isRemoved()) {
+            System.out.println("Плитка уже удалена");
+            return;
+        }
+
+        // 🔥 ПРОВЕРЯЕМ, МОЖНО ЛИ УДАЛИТЬ ЭТУ ПЛИТКУ
+        if (!GameEngine.isTileFree(currentBoard, clickedTile)) {
+            System.out.println("Плитка заблокирована! Нельзя удалить.");
+            return;
+        }
+
+        // Если плитка доступна — удаляем
+        System.out.println("Удаляем плитку: " + clickedTile.getImageName());
+        clickedTile.setRemoved(true);
+
+        // Обновляем отображение
+        gameFieldView.renderBoard(currentBoard);
+
+        // Проверяем победу
+        if (currentBoard.getActiveCount() == 0) {
+            System.out.println("🎉 ПОБЕДА! Все плитки удалены!");
+        }
     }
 
     public void show() {
