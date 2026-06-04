@@ -4,7 +4,7 @@
     {
       "z": 0,
       "tiles": [
-        {"x": 2, "y": 0, "shift": "right"},
+        {"x": 2, "y": 0, "shift": "none"},
         {"x": 3, "y": 0, "shift": "down"},
         {"x": 5, "y": 0, "shift": "right"},
         {"x": 7, "y": 0, "shift": "right"},
@@ -120,7 +120,7 @@
     {
       "z": 2,
       "tiles": [
-        {"x": 2, "y": 0, "shift": "right"},
+        {"x": 2, "y": 0, "shift": "none"},
         {"x": 3, "y": 0, "shift": "down"},
         {"x": 5, "y": 0, "shift": "right"},
         {"x": 7, "y": 0, "shift": "right"},
@@ -158,16 +158,16 @@
         {"x": 11, "y": 0, "shift": "none"},
         {"x": 0, "y": 1, "shift": "down"},
         {"x": 13, "y": 1, "shift": "down"},
-        {"x": 6, "y": 3, "shift": "right_down"},
-        {"x": 7, "y": 3, "shift": "right_down"},
-        {"x": 6, "y": 4, "shift": "right_down"},
-        {"x": 7, "y": 4, "shift": "right_down"}
+        {"x": 6, "y": 3, "shift": "down"},
+        {"x": 7, "y": 3, "shift": "down"},
+        {"x": 6, "y": 4, "shift": "down"},
+        {"x": 7, "y": 4, "shift": "down"}
       ]
     },
     {
       "z": 4,
       "tiles": [
-        {"x": 7, "y": 4, "shift": "none"}
+        {"x": 6, "y": 4, "shift": "none"}
       ]
     }
   ]

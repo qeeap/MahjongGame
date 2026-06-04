@@ -149,6 +149,7 @@
         {"x": 5, "y": 1, "shift": "down"},
         {"x": 6, "y": 1, "shift": "down"},
         {"x": 3, "y": 2, "shift": "right_down"},
+        {"x": 2, "y": 2, "shift": "right_down"},
         {"x": 7, "y": 2, "shift": "none"},
         {"x": 0, "y": 3, "shift": "down"},
         {"x": 1, "y": 3, "shift": "down"},
@@ -163,8 +164,7 @@
         {"x": 3, "y": 5, "shift": "none"},
         {"x": 4, "y": 5, "shift": "none"},
         {"x": 5, "y": 5, "shift": "none"},
-        {"x": 6, "y": 5, "shift": "none"},
-        {"x": 7, "y": 5, "shift": "none"}
+        {"x": 6, "y": 5, "shift": "none"}
       ]
     }
   ]
