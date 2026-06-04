@@ -25,7 +25,7 @@ public class GameFieldView extends Pane {
     private List<Tile> tiles;
 
     public GameFieldView() {
-        tileHeight = ScreenUtils.getScreenWidth() / 20;
+        tileHeight = ScreenUtils.getScreenWidth() / 18;
 
         tilesLayer = new Pane();
         tilesLayer.setStyle("-fx-background-color: transparent;");
@@ -148,10 +148,13 @@ public class GameFieldView extends Pane {
             } else if ("right_down".equals(shift)) {
                 pixelX += tileWidth / 2;
                 pixelY += tileHeight / 2;
+            } else if ("right".equals(shift)) {
+                pixelX += tileWidth / 2;
             }
 
             // Учитываем слой (верхние плитки чуть выше)
             pixelY -= tile.getZ() * 4;
+            pixelX -= tile.getZ() * 4;
 
             tileView.setTranslateX(pixelX);
             tileView.setTranslateY(pixelY);
