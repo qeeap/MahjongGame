@@ -25,8 +25,10 @@ public class GameFieldView extends Pane {
 
     private List<Tile> tiles;
 
+    private java.util.function.Consumer<Tile> onTileClickHandler;
+
     public GameFieldView() {
-        tileHeight = (int) Math.round(ScreenUtils.getScreenHeight() / 12);
+        tileHeight = (int) Math.round(ScreenUtils.getScreenHeight() / 11);
 
         if (tileHeight < 40) {
             tileHeight = 40;
@@ -166,6 +168,10 @@ public class GameFieldView extends Pane {
         System.out.println("Отображено плиток: " + activeTiles.size());
     }
 
+    public void setOnTileClick(java.util.function.Consumer<Tile> handler) {
+        this.onTileClickHandler = handler;
+    }
+
     /**
      * Создаёт визуальное представление одной плитки
      */
@@ -190,24 +196,13 @@ public class GameFieldView extends Pane {
         }
 
         // Эффект тени
-        imageView.setEffect(new DropShadow(5, Color.BLACK));
+        imageView.setEffect(new DropShadow(10, Color.BLACK));
 
-        // Эффект при наведении
-        imageView.setOnMouseEntered(e -> {
-            imageView.setScaleX(1.05);
-            imageView.setScaleY(1.05);
-        });
-
-        imageView.setOnMouseExited(e -> {
-            imageView.setScaleX(1.0);
-            imageView.setScaleY(1.0);
-        });
-
-        // Обработчик клика
         imageView.setOnMouseClicked(event -> {
             System.out.println("Клик по плитке: " + tile);
-            tile.setRemoved(true);
-            renderBoard(currentBoard);
+            if (onTileClickHandler != null) {
+                onTileClickHandler.accept(tile);  // ← передаём плитку в контроллер
+            }
         });
 
         return imageView;
