@@ -167,7 +167,7 @@
     {
       "z": 4,
       "tiles": [
-        {"x": 6, "y": 4, "shift": "none"}
+        {"x": 6, "y": 4, "shift": "right"}
       ]
     }
   ]
