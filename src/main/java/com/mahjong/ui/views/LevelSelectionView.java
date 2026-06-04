@@ -10,7 +10,7 @@ public class LevelSelectionView extends StackPane {
 
     private ImageView levelDragon;
     private ImageView levelPyramid;
-    private ImageView levelButterfly;
+    private ImageView levelTurtle;
     private ImageView levelSpider;
     private ImageView backButton;
 
@@ -60,16 +60,16 @@ public class LevelSelectionView extends StackPane {
             levelPyramid = new ImageView();
         }
 
-        // Кнопка "Бабочка"
+        // Кнопка "Черепаха"
         try {
-            Image img = new Image(getClass().getResourceAsStream("/images/butterfly.png"));
-            levelButterfly = new ImageView(img);
-            levelButterfly.setFitWidth(screenHeight / 2.5);
-            levelButterfly.setPreserveRatio(true);
-            levelButterfly.setStyle("-fx-cursor: hand;");
+            Image img = new Image(getClass().getResourceAsStream("/images/turtle.png"));
+            levelTurtle = new ImageView(img);
+            levelTurtle.setFitWidth(screenHeight / 2.5);
+            levelTurtle.setPreserveRatio(true);
+            levelTurtle.setStyle("-fx-cursor: hand;");
         } catch (Exception e) {
-            System.err.println("Кнопка 'Бабочка' не загружена: /images/butterfly.png");
-            levelButterfly = new ImageView();
+            System.err.println("Кнопка 'Черепаха' не загружена: /images/turtle.png");
+            levelTurtle = new ImageView();
         }
 
         try {
@@ -89,41 +89,47 @@ public class LevelSelectionView extends StackPane {
         double screenHeight = ScreenUtils.getScreenHeight();
 
         double centerX = screenWidth / 2;
-        double startY = screenHeight / 3;
-        double offsetX = 280;
-        double offsetY = 100;
+        double centerY = screenHeight / 2;
+        double offset = levelPyramid.getBoundsInLocal().getHeight() / 6;
+        double offsetY = offset / 2;
+
 
         StackPane.setAlignment(backButton, Pos.TOP_LEFT);
         backButton.setTranslateX(screenWidth / 30);
         backButton.setTranslateY(screenHeight / 30);
 
         StackPane.setAlignment(levelDragon, Pos.TOP_LEFT);
-        levelDragon.setTranslateX(centerX - offsetX);
-        levelDragon.setTranslateY(startY);
+        levelDragon.setTranslateX(centerX - levelDragon.getBoundsInLocal().getWidth() - offset);
+        levelDragon.setTranslateY(centerY - levelDragon.getBoundsInLocal().getHeight() - offsetY);
+
+        System.out.println(centerX - levelDragon.getBoundsInLocal().getWidth() - offset);
 
         // Ряд 1, колонка 2 (правый верхний угол)
         StackPane.setAlignment(levelPyramid, Pos.TOP_LEFT);
-        levelPyramid.setTranslateX(centerX + offsetX - levelPyramid.getFitWidth());
-        levelPyramid.setTranslateY(startY);
+        levelPyramid.setTranslateX(centerX + offset);
+        levelPyramid.setTranslateY(centerY - levelPyramid.getBoundsInLocal().getHeight() - offsetY);
+
+        System.out.println(centerX + offset);
 
         // Ряд 2, колонка 1 (левый нижний угол)
-        StackPane.setAlignment(levelButterfly, Pos.TOP_LEFT);
-        levelButterfly.setTranslateX(centerX - offsetX);
-        levelButterfly.setTranslateY(startY + offsetY);
+        StackPane.setAlignment(levelTurtle, Pos.TOP_LEFT);
+        levelTurtle.setTranslateX(centerX - levelTurtle.getBoundsInLocal().getWidth() - offset);
+        levelTurtle.setTranslateY(centerY + offsetY);
 
         // Ряд 2, колонка 2 (правый нижний угол)
         StackPane.setAlignment(levelSpider, Pos.TOP_LEFT);
-        levelSpider.setTranslateX(centerX + offsetX - levelSpider.getFitWidth());
-        levelSpider.setTranslateY(startY + offsetY);
+        levelSpider.setTranslateX(centerX + offset);
+        levelSpider.setTranslateY(centerY + offsetY);
 
         // Добавляем все элементы
-        getChildren().addAll(levelDragon, levelPyramid, levelButterfly, levelSpider, backButton);
+        getChildren().addAll(levelDragon, levelPyramid, levelTurtle, levelSpider, backButton);
     }
 
     // Геттеры для контроллера
     public ImageView getLevelDragon() { return levelDragon; }
     public ImageView getLevelPyramid() { return levelPyramid; }
-    public ImageView getLevelButterfly() { return levelButterfly; }
+    public ImageView getLevelTurtle() { return levelTurtle; }
     public ImageView getLevelSpider() { return levelSpider; }
     public ImageView getBackButton() { return backButton; }
 }
+

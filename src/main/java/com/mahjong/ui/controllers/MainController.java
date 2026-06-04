@@ -1,7 +1,10 @@
 package com.mahjong.ui.controllers;
 
+import com.mahjong.model.Board;
+import com.mahjong.ui.views.GameFieldView;
 import com.mahjong.ui.views.MainView;
 import com.mahjong.ui.views.LevelSelectionView;
+import com.mahjong.utils.LevelLoader;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -10,11 +13,15 @@ public class MainController {
     private StackPane root;
     private MainView mainView;
     private LevelSelectionView levelSelectView;
+    private GameFieldView gameFieldMenu;
+    private GameController gameController;
 
     public MainController(StackPane root) {
         this.root = root;
         this.mainView = new MainView();
         this.levelSelectView = new LevelSelectionView();
+        this.gameFieldMenu = new GameFieldView();
+        this.gameController = new GameController(root, this::showLevelSelection);
 
         init();
     }
@@ -38,43 +45,72 @@ public class MainController {
         });
 
         levelSelectView.getLevelDragon().setOnMouseClicked(event -> {
-            System.out.println("Выбран уровень: Черепашка 🐢");
-            startGame("turtle");
-        });
-
-        levelSelectView.getLevelPyramid().setOnMouseClicked(event -> {
-            System.out.println("Выбран уровень: Змея 🐍");
-            startGame("snake");
-        });
-
-        levelSelectView.getLevelButterfly().setOnMouseClicked(event -> {
-            System.out.println("Выбран уровень: Дракон 🐉");
+            System.out.println("Выбран уровень: Дракон");
             startGame("dragon");
         });
 
+        levelSelectView.getLevelPyramid().setOnMouseClicked(event -> {
+            System.out.println("Выбран уровень: Пирамида");
+            startGame("pyramid");
+        });
+
+        levelSelectView.getLevelTurtle().setOnMouseClicked(event -> {
+            System.out.println("Выбран уровень: Черепаха");
+            startGame("turtle");
+        });
+
         levelSelectView.getLevelSpider().setOnMouseClicked(event -> {
-            System.out.println("Выбран уровень: Бабочка 🦋");
-            startGame("butterfly");
+            System.out.println("Выбран уровень: Паук");
+            startGame("spider");
         });
 
         levelSelectView.getBackButton().setOnMouseClicked(event -> {
             System.out.println("Возврат в главное меню");
             showMainMenu();
         });
+
+        gameFieldMenu.getBackButton().setOnMouseClicked(event -> {
+            System.out.println("Возврат в выбор уровней");
+            showLevelSelection();
+        });
+
+
     }
+
 
     private void showMainMenu() {
         mainView.setVisible(true);
         levelSelectView.setVisible(false);
+        gameController.hide();
     }
 
     private void showLevelSelection() {
         mainView.setVisible(false);
         levelSelectView.setVisible(true);
+        gameController.hide();
     }
 
-    private void startGame(String level) {
-        System.out.println("Запуск игры на уровне: " + level);
-        // TODO: переход на игровое поле
+    private void startGame(String levelFileName) {
+        // 1. Строим путь к JSON файлу
+        String jsonPath = "levels/" + levelFileName + ".json";
+        System.out.println("Загрузка уровня: " + jsonPath);
+
+        // 2. Загружаем доску через LevelLoader
+        Board board = LevelLoader.loadLevel(jsonPath);
+
+        // 3. Проверяем, загрузилась ли доска
+        if (board == null || board.getActiveCount() == 0) {
+            System.err.println("Ошибка: уровень не загружен!");
+            return;
+        }
+
+        // 4. Передаём доску в GameController
+        gameController.loadBoard(board);
+
+        // 5. Показываем игровое поле
+        mainView.setVisible(false);
+        levelSelectView.setVisible(false);
+        gameController.show();
     }
 }
+
