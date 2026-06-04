@@ -20,13 +20,18 @@ public class GameFieldView extends Pane {
     private Rectangle gameBoardRect;
     private Board currentBoard;
     private Pane tilesLayer;
-    private double tileHeight;
+    private int tileHeight;
+    private int tileWidth;
 
     private List<Tile> tiles;
 
     public GameFieldView() {
-        tileHeight = ScreenUtils.getScreenWidth() / 18;
+        tileHeight = (int) Math.round(ScreenUtils.getScreenHeight() / 12);
 
+        if (tileHeight < 40) {
+            tileHeight = 40;
+        }
+        tileWidth = (int) Math.round(tileHeight * 300.0 / 420.0);
         tilesLayer = new Pane();
         tilesLayer.setStyle("-fx-background-color: transparent;");
         createUI();
@@ -108,10 +113,6 @@ public class GameFieldView extends Pane {
             tileViews.add(tileView);
         }
 
-        // 3. Берём размер первой плитки (все плитки одного размера)
-        double tileWidth = tileViews.get(0).getBoundsInLocal().getWidth();
-        double tileHeight = tileViews.get(0).getBoundsInLocal().getHeight();
-
         // 4. Пиксельные размеры всей доски
         int tilesInRow = maxX - minX + 1;
         int tilesInColumn = maxY - minY + 1;
@@ -176,14 +177,13 @@ public class GameFieldView extends Pane {
             Image img = new Image(getClass().getResourceAsStream(imagePath));
             imageView.setImage(img);
 
-            // 🔥 ИСПОЛЬЗУЕМ ЗАДАННУЮ ВЫСОТУ
             imageView.setFitHeight(tileHeight);
             imageView.setPreserveRatio(true);  // ширина подстроится автоматически
 
 
         } catch (Exception e) {
             System.err.println("Не загружена картинка: " + imagePath);
-            // Заглушка: фиксированный размер, чтобы было видно
+            // заглушка
             imageView.setStyle("-fx-background-color: #f5deb3; -fx-border-color: #8b4513; -fx-border-width: 2;");
             imageView.setFitHeight(70);
             imageView.setFitWidth(50);
