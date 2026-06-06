@@ -8,13 +8,18 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
+/**
+ * Запуск всей игры. Открытие главного окна
+ */
 public class MainPage extends Application {
 
-    private static final double TARGET_X = 950;
-    private static final double TARGET_Y = 350;
-    private static final double IMAGE_WIDTH = 2300;
+    private static final double TARGET_X = 950; //точка центра фона по x
+    private static final double TARGET_Y = 350; //точка центра фона по y
+    private static final double IMAGE_WIDTH = 2300; // ширина фона
 
+    /**
+     * Старт. Все базовые настройки окна. Не представлений
+     */
     @Override
     public void start(Stage primaryStage) {
 
