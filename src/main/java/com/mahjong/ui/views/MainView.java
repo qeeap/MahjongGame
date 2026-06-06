@@ -6,22 +6,33 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+/**
+ * MainView - главный экран входа
+ */
 public class MainView extends StackPane{
-    private ImageView logoView;
-    private ImageView playButton;
-    private ImageView exitButton;
+    private ImageView logoView; //картинка лого
+    private ImageView playButton; //картинка кнопки "Играть"
+    private ImageView exitButton; //картинка кнопки "Выход"
 
+
+    /**
+     * Генератор
+     */
     public MainView() {
         createUI();
         positionUI();
     }
 
+
+    /**
+     * Загрузка картинок и их обработка при нажатии
+     */
     private void createUI() {
 
         double screenWidth = ScreenUtils.getScreenWidth();
         double screenHeight = ScreenUtils.getScreenHeight();
 
-        // Логотип (название игры)
+        //логотип
         try {
             Image logo = new Image(getClass().getResourceAsStream("/images/gamename.png"));
             logoView = new ImageView(logo);
@@ -32,7 +43,7 @@ public class MainView extends StackPane{
             logoView = new ImageView();
         }
 
-        // Кнопка "Играть"
+        //кнопка "Играть"
         try {
             Image playImg = new Image(getClass().getResourceAsStream("/images/start.png"));
             playButton = new ImageView(playImg);
@@ -44,7 +55,7 @@ public class MainView extends StackPane{
             playButton = new ImageView();
         }
 
-        // Кнопка "Выход"
+        //кнопка "Выход"
         try {
             Image exitImg = new Image(getClass().getResourceAsStream("/images/exit.png"));
             exitButton = new ImageView(exitImg);
@@ -56,7 +67,6 @@ public class MainView extends StackPane{
             exitButton = new ImageView();
         }
 
-        // Добавляем обработчики кликов
         playButton.setOnMouseClicked(event -> {
             System.out.println("Нажата кнопка ИГРАТЬ");
         });
@@ -67,23 +77,31 @@ public class MainView extends StackPane{
         });
     }
 
+
+    /**
+     * Расстановка позиций
+     */
     private void positionUI() {
         double screenHeight = ScreenUtils.getScreenHeight();
 
         StackPane.setAlignment(logoView, javafx.geometry.Pos.TOP_CENTER);
         logoView.setTranslateY(screenHeight / 4);
 
-        // Кнопка "Играть"
+        //кнопка "Играть"
         StackPane.setAlignment(playButton, javafx.geometry.Pos.TOP_CENTER);
         playButton.setTranslateY(screenHeight * 14 / 20);
 
-        // Кнопка "Выход"
+        //кнопка "Выход"
         StackPane.setAlignment(exitButton, javafx.geometry.Pos.TOP_CENTER);
         exitButton.setTranslateY(screenHeight * 16 / 20);
 
         getChildren().addAll(logoView, playButton, exitButton);
     }
 
+
+    /**
+     * Геттеры для контроллера
+     */
     public ImageView getPlayButton() { return playButton; }
     public ImageView getExitButton() { return exitButton; }
 }

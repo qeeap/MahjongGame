@@ -13,20 +13,42 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * GameFieldView - экран игры
+ */
 public class GameFieldView extends Pane {
-    private ImageView backButton;
-    private Rectangle gameBoardRect;
-    private Board currentBoard;
-    private Pane tilesLayer;
-    private int tileHeight;
-    private int tileWidth;
 
-    private List<Tile> tiles;
+    private ImageView backButton; //каринка кнопки "Вернуться"
+    private Rectangle gameBoardRect; //прямоугольник на фоне
+    private Board currentBoard; //текущая доска
+    private Pane tilesLayer; //все плитки на доске (поле плиток)
+    private int tileHeight; //высота плитки (размер)
+    private int tileWidth; //ширина плитки(размер)
 
-    private java.util.function.Consumer<Tile> onTileClickHandler;
+    /**
+     * Обработчик клика по плитке.
+     * Устанавливается контроллером через {@link #setOnTileClick}.
+     */
+    private java.util.function.Consumer<Tile> onTileClickHandler; //коллбек клика
 
+    private ImageView highlightedTileView = null;  // запоминаем какую плитку подсветили
+
+    private int originalMinX; //максимально левая плитка на поле
+    private int originalMaxX; //максимально правая плитка на поле
+    private int originalMinY;  //максимально верхняя плитка на поле
+    private int originalMaxY;  //максимально нижняя плитка на поле
+    private boolean boundsInitialized = false;  //флаг для расположения
+
+
+    /**
+    * Генератор
+     * Задает размер плитки
+     * Задает область плиток
+     */
     public GameFieldView() {
         tileHeight = (int) Math.round(ScreenUtils.getScreenHeight() / 11);
 
@@ -40,12 +62,17 @@ public class GameFieldView extends Pane {
         positionUI();
     }
 
+
+    /**
+     * Загрузка всех изображений
+     * Создание фона для поля
+     */
     private void createUI() {
 
         double screenWidth = ScreenUtils.getScreenWidth();
         double screenHeight = ScreenUtils.getScreenHeight();
 
-        // Кнопка "Назад"
+        //кнопка "Назад"
         try {
             Image img = new Image(getClass().getResourceAsStream("/images/back.png"));
             backButton = new ImageView(img);
@@ -65,6 +92,10 @@ public class GameFieldView extends Pane {
         gameBoardRect.setFill(Color.rgb(11, 77, 106, 0.9));
     }
 
+
+    /**
+     * Позиции всех изображений
+     */
     private void positionUI() {
 
         double screenWidth = ScreenUtils.getScreenWidth();
@@ -82,10 +113,18 @@ public class GameFieldView extends Pane {
         getChildren().add(backButton);
     }
 
+
+    /**
+     * Рендер доски
+     * Находим центр уровня (по плиткам)
+     * Помечаем флаг отображения
+     * Располагаем плитки
+     * Располагаем фон (gameBoardRect)
+     */
     public void renderBoard(Board board) {
         System.out.println(tileHeight);
         this.currentBoard = board;
-        tilesLayer.getChildren().clear();
+        tilesLayer.getChildren().clear(); //очищаем старые плитки
 
         List<Tile> activeTiles = board.getActiveTiles();
         if (activeTiles.isEmpty()) {
@@ -93,41 +132,47 @@ public class GameFieldView extends Pane {
             return;
         }
 
-        // 1. Находим границы доски в координатах плиток
-        int minX = Integer.MAX_VALUE;
-        int maxX = Integer.MIN_VALUE;
-        int minY = Integer.MAX_VALUE;
-        int maxY = Integer.MIN_VALUE;
+        if (!boundsInitialized) {
+            //границы доски в координатах плиток
+            originalMinX = Integer.MAX_VALUE;
+            originalMaxX = Integer.MIN_VALUE;
+            originalMinY = Integer.MAX_VALUE;
+            originalMaxY = Integer.MIN_VALUE;
 
-        for (Tile tile : activeTiles) {
-            int x = tile.getX();
-            int y = tile.getY();
-            if (x < minX) minX = x;
-            if (x > maxX) maxX = x;
-            if (y < minY) minY = y;
-            if (y > maxY) maxY = y;
+            for (Tile tile : activeTiles) {
+                int x = tile.getX();
+                int y = tile.getY();
+                if (x < originalMinX) originalMinX = x;
+                if (x > originalMaxX) originalMaxX = x;
+                if (y < originalMinY) originalMinY = y;
+                if (y > originalMaxY) originalMaxY = y;
+            }
+            boundsInitialized = true;
+
+            System.out.println("Исходные границы: minX=" + originalMinX + ", maxX=" + originalMaxX +
+                    ", minY=" + originalMinY + ", maxY=" + originalMaxY);
         }
 
-        // 2. Сначала создаём все плитки (без позиционирования), чтобы получить их реальные размеры
+        //просто задаем все плитки
         List<ImageView> tileViews = new ArrayList<>();
         for (Tile tile : activeTiles) {
             ImageView tileView = createTileImageView(tile);
             tileViews.add(tileView);
         }
 
-        // 4. Пиксельные размеры всей доски
-        int tilesInRow = maxX - minX + 1;
-        int tilesInColumn = maxY - minY + 1;
+        //размеры поля
+        int tilesInRow = originalMaxX - originalMinX + 1;
+        int tilesInColumn = originalMaxY - originalMinY + 1;
         double boardPixelWidth = tilesInRow * tileWidth;
         double boardPixelHeight = tilesInColumn * tileHeight;
 
-        // 5. Позиция прямоугольника (игровой области)
+        //располагаем прямоугольник
         double boardRectX = gameBoardRect.getTranslateX();
         double boardRectY = gameBoardRect.getTranslateY();
         double boardRectWidth = gameBoardRect.getWidth();
         double boardRectHeight = gameBoardRect.getHeight();
 
-        // 6. Стартовая позиция для центрирования доски внутри прямоугольника
+        //центрирование прямоугольника и плиток
         double startX = boardRectX + (boardRectWidth - boardPixelWidth) / 2;
         double startY = boardRectY + (boardRectHeight - boardPixelHeight) / 2;
 
@@ -135,16 +180,14 @@ public class GameFieldView extends Pane {
         System.out.println("Доска: " + tilesInRow + " x " + tilesInColumn + " плиток");
         System.out.println("Старт: (" + (int)startX + ", " + (int)startY + ")");
 
-        // 7. Позиционируем и добавляем плитки
+        //непосредственно добавление
         for (int i = 0; i < activeTiles.size(); i++) {
             Tile tile = activeTiles.get(i);
             ImageView tileView = tileViews.get(i);
+            double pixelX = startX + (tile.getX() - originalMinX) * tileWidth;
+            double pixelY = startY + (tile.getY() - originalMinY) * tileHeight;
 
-            // Вычисляем позицию с учётом центрирования
-            double pixelX = startX + (tile.getX() - minX) * tileWidth;
-            double pixelY = startY + (tile.getY() - minY) * tileHeight;
-
-            // Учитываем смещение (shift)
+            //реальзация смещения
             String shift = tile.getShift();
             if ("down".equals(shift)) {
                 pixelY += tileHeight / 2;
@@ -155,7 +198,7 @@ public class GameFieldView extends Pane {
                 pixelX += tileWidth / 2;
             }
 
-            // Учитываем слой (верхние плитки чуть выше)
+            //учитываем слой (верхние плитки чуть выше и левее)
             pixelY -= tile.getZ() * 4;
             pixelX -= tile.getZ() * 4;
 
@@ -168,9 +211,14 @@ public class GameFieldView extends Pane {
         System.out.println("Отображено плиток: " + activeTiles.size());
     }
 
+
+    /**
+     * Коллбек клика по кнопке для контроллера
+     */
     public void setOnTileClick(java.util.function.Consumer<Tile> handler) {
         this.onTileClickHandler = handler;
     }
+
 
     /**
      * Создаёт визуальное представление одной плитки
@@ -195,18 +243,51 @@ public class GameFieldView extends Pane {
             imageView.setFitWidth(50);
         }
 
-        // Эффект тени
-        imageView.setEffect(new DropShadow(10, Color.BLACK));
+        //вот тут тень
+        imageView.setEffect(new DropShadow(15, Color.BLACK));
 
         imageView.setOnMouseClicked(event -> {
             System.out.println("Клик по плитке: " + tile);
             if (onTileClickHandler != null) {
-                onTileClickHandler.accept(tile);  // ← передаём плитку в контроллер
+                onTileClickHandler.accept(tile);  //передаём плитку в контроллер
             }
         });
 
+        imageView.setUserData(tile);  // запоминаем для какой плитки этот ImageView
+
         return imageView;
     }
+
+    /***
+     * Затемняет плитку так пышпышпыш
+     */
+    public void setTileDarkened(Tile tile, boolean dark) {
+        for (javafx.scene.Node node : tilesLayer.getChildren()) {
+            if (node instanceof ImageView) {
+                ImageView iv = (ImageView) node;
+                if (iv.getUserData() == tile) {
+                    if (dark) {
+                        // Только затемнение
+                        javafx.scene.effect.ColorAdjust darken = new javafx.scene.effect.ColorAdjust();
+                        darken.setBrightness(-0.4);  // затемнение на 40%
+                        iv.setEffect(darken);
+                    } else {
+                        // Возвращаем обычную тень
+                        iv.setEffect(new DropShadow(15, Color.BLACK));
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Убираем флаг при выходе из уровня
+     */
+    public void resetBounds() {
+        boundsInitialized = false;
+    }
+
 
     /**
      * Строит путь к картинке по имени из JSON
@@ -214,7 +295,6 @@ public class GameFieldView extends Pane {
     private String buildImagePath(String imageName) {
         String basePath = "/tiles/";
 
-        // Пример: "bamboos1" → "/images/tiles/bamboos/1.png"
         if (imageName.startsWith("bamboos")) {
             String num = imageName.substring(7);
             return basePath + "bamboos/" + num + ".png";
@@ -238,7 +318,9 @@ public class GameFieldView extends Pane {
 
         return basePath + imageName + ".png";
     }
-
+    /**
+     * Геттеры для контроллера
+     */
     public ImageView getBackButton() { return backButton; }
 }
 
