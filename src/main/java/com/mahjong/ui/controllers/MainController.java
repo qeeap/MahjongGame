@@ -44,9 +44,10 @@ public class MainController {
             stage.close();
         });
 
+        //ЗАМЕНИТЬ TEST НА DRAGON
         levelSelectView.getLevelDragon().setOnMouseClicked(event -> {
             System.out.println("Выбран уровень: Дракон");
-            startGame("dragon");
+            startGame("test");
         });
 
         levelSelectView.getLevelPyramid().setOnMouseClicked(event -> {
@@ -91,23 +92,18 @@ public class MainController {
     }
 
     private void startGame(String levelFileName) {
-        // 1. Строим путь к JSON файлу
         String jsonPath = "levels/" + levelFileName + ".json";
         System.out.println("Загрузка уровня: " + jsonPath);
 
-        // 2. Загружаем доску через LevelLoader
         Board board = LevelLoader.loadLevel(jsonPath);
 
-        // 3. Проверяем, загрузилась ли доска
         if (board == null || board.getActiveCount() == 0) {
             System.err.println("Ошибка: уровень не загружен!");
             return;
         }
 
-        // 4. Передаём доску в GameController
-        gameController.loadBoard(board);
+        gameController.loadBoard(board, levelFileName);
 
-        // 5. Показываем игровое поле
         mainView.setVisible(false);
         levelSelectView.setVisible(false);
         gameController.show();

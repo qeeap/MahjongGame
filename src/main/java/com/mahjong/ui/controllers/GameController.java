@@ -4,6 +4,9 @@ import com.mahjong.logic.GameEngine;
 import com.mahjong.model.Board;
 import com.mahjong.model.Tile;
 import com.mahjong.ui.views.GameFieldView;
+import com.mahjong.ui.views.GameResultView;
+import com.mahjong.ui.controllers.MainController;
+import com.mahjong.utils.LevelLoader;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -12,6 +15,7 @@ import javafx.scene.layout.StackPane;
 public class GameController {
 
     private GameFieldView gameFieldView; //представление игры
+    private GameResultView gameResultView; //представление результата
     private String currentLevel; //текущий уровень
     private Runnable onBackCallback;  // колбэк для возврата в меню
     private Board currentBoard; //текущая доская с плитками
@@ -38,10 +42,12 @@ public class GameController {
      */
     public GameController(StackPane root, Runnable onBackCallback) {
         this.gameFieldView = new GameFieldView();
+        this.gameResultView = new GameResultView();
         this.onBackCallback = onBackCallback;
 
-        root.getChildren().add(gameFieldView);
+        root.getChildren().addAll(gameFieldView, gameResultView);
         setupButtons();
+        setupResultView();
     }
 
     /**
@@ -60,6 +66,25 @@ public class GameController {
         gameFieldView.setOnTileClick(this::handleTileClick);
     }
 
+    /**
+     * Настраивает плашку результата
+     */
+    private void setupResultView() {
+        gameResultView.setOnRetry(() -> {
+            System.out.println("Перезапуск уровня");
+            gameResultView.hide();
+            restartLevel();
+        });
+
+        gameResultView.setOnMenu(() -> {
+            System.out.println("Возврат в меню выбора уровней");
+            gameResultView.hide();
+            if (onBackCallback != null) {
+                onBackCallback.run();
+            }
+        });
+    }
+
 
     /**
      * Загружает игровую доску и отображает её на экране.
@@ -67,8 +92,9 @@ public class GameController {
      *
      * @param board доска с плитками (загруженная из JSON)
      */
-    public void loadBoard(Board board) {
+    public void loadBoard(Board board, String levelName) {
         this.currentBoard = board;
+        this.currentLevel = levelName;
         gameFieldView.resetBounds();
         this.selectedTile = null;
 
@@ -77,8 +103,25 @@ public class GameController {
         gameFieldView.updateScore(0);
 
         gameFieldView.renderBoard(board);
+        gameResultView.hide();
 
         System.out.println("Загружена доска: " + board.getActiveCount() + " активных плиток");
+    }
+
+
+    /**
+     * Перезапускает текущий уровень
+     */
+    public void restartLevel() {
+        System.out.println("Перезапуск уровня: " + currentLevel);
+
+        // Загружаем доску заново
+        Board newBoard = LevelLoader.loadLevel("levels/" + currentLevel + ".json");
+        if (newBoard != null) {
+            loadBoard(newBoard, currentLevel);
+        } else {
+            System.err.println("Ошибка перезагрузки уровня: " + currentLevel);
+        }
     }
 
 
@@ -162,7 +205,6 @@ public class GameController {
             System.out.println("  - " + selectedTile.getImageName());
             System.out.println("  - " + clickedTile.getImageName());
 
-            // 🔥 ПРАВИЛЬНЫЙ СПОСОБ: используем removePair() из Board
             boolean pairRemoved = currentBoard.removePair(selectedTile.getId(), clickedTile.getId());
 
             if (pairRemoved) {
@@ -174,7 +216,7 @@ public class GameController {
                 if (currentBoard.getActiveCount() == 0) {
                     System.out.println("Все плитки удалены");
                     System.out.println("Итоговый счёт: " + score);
-                    showVictoryAndExit();
+                    showVictory();
                     return;
                 }
 
@@ -182,7 +224,7 @@ public class GameController {
                 if (!GameEngine.hasAnyMove(currentBoard)) {
                     System.out.println("Игра окончена");
                     System.out.println("Итоговый счёт: " + score);
-                    showGameOverAndExit();
+                    showGameOver();
                     return;
                 }
             } else {
@@ -198,35 +240,14 @@ public class GameController {
     }
 
 
-    /**
-     * Обрабатывает победу:
-     * Выводит сообщение в консоль
-     * Возвращает игрока в меню выбора уровней
-     * <p>
-     * TODO: в будущем добавить отображение графического экрана победы
-     */
-    private void showVictoryAndExit() {
+    private void showVictory() {
         System.out.println("Победа");
-        // TODO: позже добавить картинку с победой
-        if (onBackCallback != null) {
-            onBackCallback.run();
-        }
+        gameResultView.showVictory(score, maxCombo);
     }
 
-
-    /**
-     * Обрабатывает поражение:
-     * Выводит сообщение в консоль
-     * Возвращает игрока в меню выбора уровней
-     * <p>
-     * TODO: в будущем добавить отображение графического экрана поражения
-     */
-    private void showGameOverAndExit() {
-        System.out.println("Нет доступных ходов. Возврат в выбор уровней...");
-        // TODO: позже добавишь картинку с проигрышем
-        if (onBackCallback != null) {
-            onBackCallback.run();
-        }
+    private void showGameOver() {
+        System.out.println("Поражение");
+        gameResultView.showGameOver(score, maxCombo);
     }
 
 

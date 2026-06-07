@@ -1,0 +1,14 @@
+{
+  "name": "test",
+  "layers": [
+    {
+      "z": 0,
+      "tiles": [
+        {"x": 7, "y": 0, "shift": "down"},
+        {"x": 8, "y": 0, "shift": "none"},
+        {"x": 4, "y": 1, "shift": "down"},
+        {"x": 5, "y": 1, "shift": "down"}
+      ]
+    }
+  ]
+}
