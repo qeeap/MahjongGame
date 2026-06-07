@@ -17,6 +17,17 @@ public class GameController {
     private Board currentBoard; //текущая доская с плитками
     private Tile selectedTile = null; //выбранная плитка
 
+    /**
+     * ВАЛЕРА ЭТИ СЧЕТЧИКИ ТЕБЕ
+     */
+    private int score = 0; //текущий счет
+    private int comboCounter = 0; //комбо-счетчик
+    private int maxCombo = 0; //максимальное комбо
+
+
+    private static final int BASE_POINTS = 150; //очки за собранную пару
+    private static final int BONUS_PER_COMBO = 50; //бонус за комбуху еееее
+
 
     /**
      * Конструктор контроллера.
@@ -60,9 +71,47 @@ public class GameController {
         this.currentBoard = board;
         gameFieldView.resetBounds();
         this.selectedTile = null;
+
+        this.score = 0;
+        this.comboCounter = 0;
+        gameFieldView.updateScore(0);
+
         gameFieldView.renderBoard(board);
 
         System.out.println("Загружена доска: " + board.getActiveCount() + " активных плиток");
+    }
+
+
+    /**
+     * Начисляет очки за собранную пару.
+     * Формула: BASE_POINTS + (comboCounter * BONUS_PER_COMBO)
+     * После начисления comboCounter увеличивается на 1.
+     */
+    private void addPointsForPair() {
+        int pointsEarned = BASE_POINTS + (comboCounter * BONUS_PER_COMBO);
+        score += pointsEarned;
+        comboCounter++;
+
+        System.out.println("+ " + pointsEarned + " очков");
+        System.out.println("Всего очков: " + score);
+        System.out.println("Комбо: " + comboCounter + " пар подряд");
+
+        gameFieldView.updateScore(score);
+    }
+
+
+    /**
+     * Сбрасывает комбо-счётчик при неправильной паре или ошибке.
+     */
+    private void resetCombo() {
+        if (comboCounter > 0) {
+            System.out.println("Комбо прервано. Было: " + comboCounter + " пар подряд");
+            if (comboCounter > maxCombo) {
+                maxCombo = comboCounter;
+            }
+            System.out.println("Макс комбо:" + maxCombo);
+            comboCounter = 0;
+        }
     }
 
 
@@ -90,8 +139,9 @@ public class GameController {
         }
 
         if (!GameEngine.isTileFree(currentBoard, clickedTile)) {
-            System.out.println("Плитка заблокирована! Нельзя выбрать.");
+            System.out.println("Плитка заблокирована");
             clearSelection();
+            resetCombo();
             return;
         }
 
@@ -108,31 +158,41 @@ public class GameController {
         }
 
         if (GameEngine.canFormPair(currentBoard, selectedTile, clickedTile)) {
-            System.out.println("Пара найдена! Удаляем:");
+            System.out.println("Пара найдена. Удаляем:");
             System.out.println("  - " + selectedTile.getImageName());
             System.out.println("  - " + clickedTile.getImageName());
 
-            selectedTile.setRemoved(true);
-            clickedTile.setRemoved(true);
+            // 🔥 ПРАВИЛЬНЫЙ СПОСОБ: используем removePair() из Board
+            boolean pairRemoved = currentBoard.removePair(selectedTile.getId(), clickedTile.getId());
 
-            clearSelection();
-            gameFieldView.renderBoard(currentBoard);
+            if (pairRemoved) {
+                addPointsForPair();
+                clearSelection();
+                gameFieldView.renderBoard(currentBoard);
 
-            //победа
-            if (currentBoard.getActiveCount() == 0) {
-                System.out.println("Все плитки удалены!");
-                showVictoryAndExit();
-                return;
-            }
+                // победа
+                if (currentBoard.getActiveCount() == 0) {
+                    System.out.println("Все плитки удалены");
+                    System.out.println("Итоговый счёт: " + score);
+                    showVictoryAndExit();
+                    return;
+                }
 
-            //проигрыш
-            if (!GameEngine.hasAnyMove(currentBoard)) {
-                System.out.println("Игра окончена");
-                showGameOverAndExit();
-                return;
+                // проигрыш
+                if (!GameEngine.hasAnyMove(currentBoard)) {
+                    System.out.println("Игра окончена");
+                    System.out.println("Итоговый счёт: " + score);
+                    showGameOverAndExit();
+                    return;
+                }
+            } else {
+                System.out.println("Не удалось удалить пару (возможно, одна из плиток уже удалена)");
+                resetCombo();
+                clearSelection();
             }
         } else {
             System.out.println("Плитки не совпадают или недоступны");
+            resetCombo();
             clearSelection();
         }
     }
@@ -146,7 +206,7 @@ public class GameController {
      * TODO: в будущем добавить отображение графического экрана победы
      */
     private void showVictoryAndExit() {
-        System.out.println("Возврат в выбор уровней...");
+        System.out.println("Победа");
         // TODO: позже добавить картинку с победой
         if (onBackCallback != null) {
             onBackCallback.run();
@@ -198,5 +258,12 @@ public class GameController {
     public void hide() {
         gameFieldView.setVisible(false);
     }
+
+    /**
+    * Геттеры
+     */
+    public int getScore() {return score; }
+    public int getComboCounter() {return comboCounter; }
+    public int getMaxCombo() {return maxCombo; }
 }
 
