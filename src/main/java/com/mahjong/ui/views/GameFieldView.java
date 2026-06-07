@@ -11,6 +11,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +26,8 @@ import java.util.Map;
 public class GameFieldView extends Pane {
 
     private ImageView backButton; //каринка кнопки "Вернуться"
+    private ImageView scoreImg; //каринка счета
+    private Text scoreText; //текущий счет
     private Rectangle gameBoardRect; //прямоугольник на фоне
     private Board currentBoard; //текущая доска
     private Pane tilesLayer; //все плитки на доске (поле плиток)
@@ -84,6 +89,25 @@ public class GameFieldView extends Pane {
             backButton = new ImageView();
         }
 
+        //кнопка счета
+        try {
+            Image img = new Image(getClass().getResourceAsStream("/images/score.png"));
+            scoreImg = new ImageView(img);
+            scoreImg.setFitWidth(screenWidth / 12);
+            scoreImg.setPreserveRatio(true);
+        } catch (Exception e) {
+            System.err.println("Картинка счета не загружена: /images/score.png");
+            scoreImg = new ImageView();
+        }
+
+        //текст счета
+        scoreText = new Text("0");
+        scoreText.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+        scoreText.setFill(Color.rgb(11, 77, 106, 0.9));
+        scoreText.setStrokeWidth(1.5);
+        scoreText.setStyle("-fx-font-smoothing-type: gray;");
+
+        //фон для поля
         gameBoardRect = new Rectangle();
         gameBoardRect.setWidth(screenWidth * 0.85);
         gameBoardRect.setHeight(screenHeight * 0.9);
@@ -105,14 +129,64 @@ public class GameFieldView extends Pane {
         backButton.setTranslateX(screenWidth / 30);
         backButton.setTranslateY(screenHeight / 30);
 
+        positionScoreElements();
+
+        //прямоугольник
         gameBoardRect.setTranslateX((screenWidth - gameBoardRect.getWidth()) / 2);
         gameBoardRect.setTranslateY((screenHeight - gameBoardRect.getHeight()) / 2);
 
-        getChildren().add(gameBoardRect);   // 1. прямоугольник (внизу)
-        getChildren().add(tilesLayer);      // 2. слой для плиток (посередине)
-        getChildren().add(backButton);
+        getChildren().add(gameBoardRect);   // 1. прямоугольник
+        getChildren().add(tilesLayer);      // 2. слой для плиток
+        getChildren().add(scoreImg);        // 3. картинка счета
+        getChildren().add(scoreText);       // 4. текст счёта
+        getChildren().add(backButton);      // 5. кнопка
     }
 
+
+    /**
+     * Позиционирует картинку и текст счёта
+     */
+    private void positionScoreElements() {
+        double screenWidth = ScreenUtils.getScreenWidth();
+        double screenHeight = ScreenUtils.getScreenHeight();
+
+        StackPane.setAlignment(scoreImg, Pos.TOP_LEFT);
+        scoreImg.setTranslateX(screenHeight / 30);
+        scoreImg.setTranslateY(screenHeight / 7);
+
+        StackPane.setAlignment(scoreText, Pos.TOP_LEFT);
+
+        double imgX = scoreImg.getTranslateX();
+        double imgY = scoreImg.getTranslateY();
+        double imgWidth = scoreImg.getFitWidth();
+        double imgHeight = scoreImg.getFitHeight();
+
+        double textWidth = scoreText.getBoundsInLocal().getWidth();
+        double textHeight = scoreText.getBoundsInLocal().getHeight();
+
+        scoreText.setTranslateX(imgX + (imgWidth - textWidth) / 2);
+        scoreText.setTranslateY(imgY + (imgHeight  + textHeight) / 2);
+    }
+
+    /**
+     * Обновляет отображение счёта
+     */
+    public void updateScore(int score) {
+        if (scoreText != null) {
+            scoreText.setText(String.valueOf(score));
+
+            double imgX = scoreImg.getTranslateX();
+            double imgY = scoreImg.getTranslateY();
+            double imgWidth = scoreImg.getBoundsInLocal().getWidth();
+            double imgHeight = scoreImg.getBoundsInLocal().getHeight();
+
+            double textWidth = scoreText.getBoundsInLocal().getWidth();
+            double textHeight = scoreText.getBoundsInLocal().getHeight();
+
+            scoreText.setTranslateX(imgX + (imgWidth - textWidth) / 2);
+            scoreText.setTranslateY(imgY + (imgHeight  + textHeight) / 2);
+        }
+    }
 
     /**
      * Рендер доски
