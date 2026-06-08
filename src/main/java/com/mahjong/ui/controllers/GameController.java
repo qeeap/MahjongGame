@@ -49,6 +49,17 @@ public class GameController {
             }
         });
 
+        gameFieldView.getRestButton().setOnMouseClicked(event -> {
+            System.out.println("Перезагрузка уровня");
+
+            if (currentBoard != null && currentBoard.getActiveCount() > 0) {
+                GameSave.delete(currentLevel);
+                System.out.println("Прогресс уровня '" + currentLevel + "сброшен");
+            }
+            restartLevel();
+
+        });
+
         gameFieldView.setOnTileClick(this::handleTileClick);
     }
 
@@ -98,9 +109,9 @@ public class GameController {
             this.maxCombo = saveData.maxCombo;
             gameFieldView.updateScore(score);
 
-            System.out.println("✅ Восстановлено! Счёт: " + score + ", Комбо: " + comboCounter);
+            System.out.println("Восстановлено! Счёт: " + score + ", Комбо: " + comboCounter);
         } else {
-            System.out.println("📀 Новый уровень: " + levelName);
+            System.out.println("Новый уровень: " + levelName);
 
             if (board == null) {
                 board = LevelLoader.loadLevel("levels/" + levelName + ".json");

@@ -38,7 +38,7 @@ public class LevelSelectionView extends StackPane {
         try {
             Image img = new Image(getClass().getResourceAsStream("/images/back.png"));
             backButton = new ImageView(img);
-            backButton.setFitWidth(screenWidth / 15);
+            backButton.setFitHeight(screenHeight / 17);
             backButton.setPreserveRatio(true);
             backButton.setStyle("-fx-cursor: hand;");
         } catch (Exception e) {
