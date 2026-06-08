@@ -26,6 +26,7 @@ import java.util.Map;
 public class GameFieldView extends Pane {
 
     private ImageView backButton; //каринка кнопки "Вернуться"
+    private ImageView restButton; //картинка кнопки "перезагрузить"
     private ImageView scoreImg; //каринка счета
     private Text scoreText; //текущий счет
     private Rectangle gameBoardRect; //прямоугольник на фоне
@@ -81,12 +82,20 @@ public class GameFieldView extends Pane {
         try {
             Image img = new Image(getClass().getResourceAsStream("/images/back.png"));
             backButton = new ImageView(img);
-            backButton.setFitWidth(screenWidth / 15);
-            backButton.setPreserveRatio(true);
             backButton.setStyle("-fx-cursor: hand;");
         } catch (Exception e) {
             System.err.println("Кнопка 'Назад' не загружена: /images/back.png");
             backButton = new ImageView();
+        }
+
+        //кнопка "Перезагрузить"
+        try {
+            Image img = new Image(getClass().getResourceAsStream("/images/rest.png"));
+            restButton = new ImageView(img);
+            restButton.setStyle("-fx-cursor: hand;");
+        } catch (Exception e) {
+            System.err.println("Кнопка 'Перезагрузить' не загружена: /images/rest.png");
+            restButton = new ImageView();
         }
 
         //кнопка счета
@@ -126,8 +135,17 @@ public class GameFieldView extends Pane {
         double screenHeight = ScreenUtils.getScreenHeight();
 
         StackPane.setAlignment(backButton, Pos.TOP_LEFT);
+        backButton.setFitHeight(screenHeight / 17);
+        backButton.setPreserveRatio(true);
+
         backButton.setTranslateX(screenWidth / 30);
         backButton.setTranslateY(screenHeight / 30);
+
+        StackPane.setAlignment(restButton, Pos.TOP_LEFT);
+        restButton.setFitHeight(backButton.getFitHeight());
+        restButton.setPreserveRatio(true);
+        restButton.setTranslateX(screenWidth / 8);
+        restButton.setTranslateY(screenHeight / 30);
 
         positionScoreElements();
 
@@ -140,6 +158,7 @@ public class GameFieldView extends Pane {
         getChildren().add(scoreImg);        // 3. картинка счета
         getChildren().add(scoreText);       // 4. текст счёта
         getChildren().add(backButton);      // 5. кнопка
+        getChildren().add(restButton);
     }
 
 
@@ -151,7 +170,7 @@ public class GameFieldView extends Pane {
         double screenHeight = ScreenUtils.getScreenHeight();
 
         StackPane.setAlignment(scoreImg, Pos.TOP_LEFT);
-        scoreImg.setTranslateX(screenHeight / 30);
+        scoreImg.setTranslateX(screenWidth / 30);
         scoreImg.setTranslateY(screenHeight / 7);
 
         StackPane.setAlignment(scoreText, Pos.TOP_LEFT);
@@ -396,5 +415,6 @@ public class GameFieldView extends Pane {
      * Геттеры для контроллера
      */
     public ImageView getBackButton() { return backButton; }
+    public ImageView getRestButton() {return restButton; }
 }
 

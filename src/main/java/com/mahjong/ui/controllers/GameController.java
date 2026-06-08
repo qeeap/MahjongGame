@@ -69,6 +69,17 @@ public class GameController {
             }
         });
 
+        gameFieldView.getRestButton().setOnMouseClicked(event -> {
+            System.out.println("Перезагрузка уровня");
+
+            if (currentBoard != null && currentBoard.getActiveCount() > 0) {
+                GameSave.delete(currentLevel);
+                System.out.println("Прогресс уровня '" + currentLevel + "сброшен");
+            }
+            restartLevel();
+
+        });
+
         gameFieldView.setOnTileClick(this::handleTileClick);
     }
 
