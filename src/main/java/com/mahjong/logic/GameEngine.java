@@ -44,11 +44,16 @@ public class GameEngine {
 
         List<Tile> aboveLeft = board.findTilesAtPosition(x - 1, y, z + 1);
         for (Tile neighborUp : aboveLeft) {
-            if (neighborUp.getShift().equals("right") || neighborUp.getShift().equals("right_down") || neighborUp.getShift().equals("none")) {
+            if (neighborUp.getShift().equals("right") || neighborUp.getShift().equals("right_down")){
                 if (!aboveLeft.isEmpty()) {
                     System.out.println("Слева мешает на слое выше");
-                    blockedLeft = true;
+                    return false;
                 }
+            }
+            if (neighborUp.getShift().equals("none")){
+                System.out.println("мешает слева на слое выше");
+                blockedLeft = true;
+
             }
         }
 
@@ -82,6 +87,22 @@ public class GameEngine {
             }
         }
 
+        List<Tile> bottomAboveDown = board.findTilesAtPosition(x, y+1, z+1);
+        for (Tile neighbour : bottomAboveDown) {
+            if (neighbour.getShift().equals("none") || neighbour.getShift().equals("right")) {
+                System.out.println("плитка со смещением вниз мешает плитка сверху на y+1");
+                return false;
+            }
+        }
+
+        List<Tile> bottomAboveLeft = board.findTilesAtPosition(x-1, y+1, z+1);
+        for (Tile neighbour : bottomAboveLeft){
+            if (neighbour.getShift().equals("right")){
+                System.out.println("плитка со смещением вниз мешает плитка сверху на y+1 со смещением вправо");
+                return false;
+            }
+        }
+
 
         if (tile.getShift().equals("down")) {
             List<Tile> bottomRight = board.findTilesAtPosition(x + 1, y + 1, z);
@@ -102,7 +123,6 @@ public class GameEngine {
                 }
             }
         }
-
 
         List<Tile> diagonalLeftDown = board.findTilesAtPosition(x - 1, y - 1, z);
         for (Tile neighbor : diagonalLeftDown) {
