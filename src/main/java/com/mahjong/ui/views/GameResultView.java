@@ -26,29 +26,30 @@ public class GameResultView extends StackPane {
     private Rectangle darkBackground;
     private Text scoreText;
     private Text maxComboText;
-    private VBox container;
+
+    public HBox buttonPanel;
+    public VBox textContainer;
 
     public GameResultView() {
-        setAlignment(Pos.CENTER);
         setVisible(false);
 
         darkBackground = new Rectangle();
         darkBackground.setFill(Color.rgb(5, 37, 46, 0.7));
 
-        // ========== ТЕКСТЫ ==========
-        scoreText = new Text("Счёт: 0");
+        //текст
+        scoreText = new Text("Score: 0");
         scoreText.setFont(Font.font("Arial", FontWeight.BOLD, 28));
         scoreText.setFill(Color.rgb(11, 77, 106, 0.9));
         scoreText.setStrokeWidth(1.5);
         scoreText.setStyle("-fx-font-smoothing-type: gray;");
 
-        maxComboText = new Text("Макс комбо: 0");
+        maxComboText = new Text("MAX combo: 0");
         maxComboText.setFont(Font.font("Arial", FontWeight.BOLD, 28));
         maxComboText.setFill(Color.rgb(11, 77, 106, 0.9));
         maxComboText.setStrokeWidth(1.5);
         maxComboText.setStyle("-fx-font-smoothing-type: gray;");
 
-        // ========== КНОПКИ ==========
+        //кнопки
         try {
             Image img = new Image(getClass().getResourceAsStream("/images/tryagain.png"));
             retryButton = new ImageView(img);
@@ -71,19 +72,22 @@ public class GameResultView extends StackPane {
             menuButton = new ImageView();
         }
 
-        // ========== КОНТЕЙНЕРЫ ==========
-        HBox buttonPanel = new HBox(ScreenUtils.getScreenWidth() / 50);
+        //контейнеры
+        buttonPanel = new HBox(ScreenUtils.getScreenWidth() / 50);
         buttonPanel.setAlignment(Pos.CENTER);
         buttonPanel.getChildren().addAll(retryButton, menuButton);
 
-        VBox textContainer = new VBox(15);
+        textContainer = new VBox(ScreenUtils.getScreenWidth() / 100);
         textContainer.setAlignment(Pos.CENTER);
         textContainer.getChildren().addAll(scoreText, maxComboText);
 
-        container = new VBox(25);
-        container.setAlignment(Pos.CENTER);
+        resultImage = new ImageView();
+        resultImage.setPreserveRatio(true);
 
-        getChildren().addAll(darkBackground, container);
+        StackPane.setAlignment(buttonPanel, Pos.CENTER);
+        StackPane.setAlignment(textContainer, Pos.CENTER);
+        StackPane.setAlignment(resultImage, Pos.CENTER);
+
     }
 
     /**
@@ -98,33 +102,26 @@ public class GameResultView extends StackPane {
      * Показывает плашку с результатом
      */
     public void showResult(int score, int maxCombo, boolean isVictory) {
-        // Обновляем текст
-        scoreText.setText("Счёт: " + score);
-        maxComboText.setText("Макс комбо: " + maxCombo);
+        //обновление
+        scoreText.setText("Score: " + score);
+        maxComboText.setText("MAX combo: " + maxCombo);
 
-        // Загружаем нужную картинку
+        //фон
         String imagePath = isVictory ? "/images/victory.png" : "/images/lose.png";
         try {
             Image img = new Image(getClass().getResourceAsStream(imagePath));
-            resultImage = new ImageView(img);
-            resultImage.setPreserveRatio(true);
-            resultImage.setFitWidth(ScreenUtils.getScreenWidth() * 0.6);
+            resultImage.setImage(img);
+            resultImage.setFitHeight(ScreenUtils.getScreenHeight() / 3);
         } catch (Exception e) {
             System.err.println("Не загружена картинка результата: " + imagePath);
             resultImage = new ImageView();
         }
+        buttonPanel.setTranslateY(resultImage.getFitHeight()/3);
+        textContainer.setTranslateY(resultImage.getFitHeight()/10);
+        System.out.println(resultImage.getTranslateY() + resultImage.getFitWidth()*1.75);
 
-        // Пересобираем контейнер
-        HBox buttonPanel = new HBox(ScreenUtils.getScreenWidth() / 50);
-        buttonPanel.setAlignment(Pos.CENTER);
-        buttonPanel.getChildren().addAll(retryButton, menuButton);
-
-        VBox textContainer = new VBox(15);
-        textContainer.setAlignment(Pos.CENTER);
-        textContainer.getChildren().addAll(scoreText, maxComboText);
-
-        container.getChildren().clear();
-        container.getChildren().addAll(resultImage, textContainer, buttonPanel);
+        getChildren().clear();
+        getChildren().addAll(darkBackground, resultImage, buttonPanel, textContainer);
 
         setVisible(true);
     }
