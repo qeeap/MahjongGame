@@ -3,22 +3,17 @@ package com.mahjong.utils;
 import com.google.gson.Gson;
 import com.mahjong.model.Board;
 import com.mahjong.model.Tile;
+import com.mahjong.ui.utils.GameSave;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
-/**
- * Загрузчик уровней для игры Маджонг.
- * Поддерживает:
- * - Чтение уровней из JSON
- * - Случайное распределение картинок
- * - Автоматический подсчёт плиток
- */
+public class LevelLoader {
 
-public  class LevelLoader {
-    //список картинок
     private static final String[] ALL_TILES = {
             "bamboos1", "bamboos2", "bamboos3", "bamboos4", "bamboos5", "bamboos6", "bamboos7", "bamboos8", "bamboos9",
             "characters1", "characters2", "characters3", "characters4", "characters5", "characters6", "characters7", "characters8", "characters9",
@@ -27,12 +22,9 @@ public  class LevelLoader {
             "dragonRed", "dragonGreen", "dragonWhite"
     };
 
-    /**
-     * Загружает уровень со случайным распределением картинок
-     *
-     * @param fileName путь к файлу (например, "levels/pyramid.json")
-     * @return Board с готовыми плитками
-     */
+    // Храним seed для текущего уровня
+    private static int currentSeed = 0;
+    private static Random random = new Random();
 
     public static Board loadLevel(String fileName) {
         try {
@@ -55,8 +47,33 @@ public  class LevelLoader {
                 return createTestBoard();
             }
 
-            List<String> imageNames = generateImageList(totalTiles);
-            Collections.shuffle(imageNames);
+            // Получаем имя уровня из fileName
+            String levelName = fileName.replace("levels/", "").replace(".json", "");
+
+            // Проверяем, есть ли сохранение для этого уровня
+            GameSave.SaveData saveData = GameSave.load(levelName);
+
+            List<String> imageNames;
+
+            if (saveData != null) {
+                // Есть сохранение - используем сохранённый seed
+                currentSeed = saveData.seed;
+                random.setSeed(currentSeed);
+                System.out.println("Восстанавливаем seed из сохранения: " + currentSeed);
+
+                // Генерируем картинки с сохранённым seed
+                imageNames = generateImageList(totalTiles);
+                Collections.shuffle(imageNames, random);
+            } else {
+                // Новый уровень - генерируем случайный seed
+                currentSeed = random.nextInt(1000000);
+                random.setSeed(currentSeed);
+                System.out.println("Новый уровень! Случайный seed: " + currentSeed);
+
+                // Генерируем картинки с новым seed
+                imageNames = generateImageList(totalTiles);
+                Collections.shuffle(imageNames, random);
+            }
 
             Board board = new Board();
             int id = 1;
@@ -83,8 +100,11 @@ public  class LevelLoader {
     }
 
     /**
-     * чтение из Json
+     * Возвращает текущий seed (для сохранения)
      */
+    public static int getCurrentSeed() {
+        return currentSeed;
+    }
 
     private static LevelData readJsonFile(String fileName) {
         try {
@@ -105,34 +125,26 @@ public  class LevelLoader {
         }
     }
 
-
-    /**
-     * Генерирует список картинок нужной длины
-     * Каждая картинка встречается ровно 2 раза
-     */
     private static List<String> generateImageList(int totalTiles) {
         List<String> images = new ArrayList<>();
         int pairsNeeded = totalTiles / 2;
 
         for (int i = 0; i < pairsNeeded; i++) {
             String image = ALL_TILES[i % ALL_TILES.length];
-            images.add(image);  // первая плитка
-            images.add(image);  // вторая плитка
+            images.add(image);
+            images.add(image);
         }
 
         return images;
     }
 
-    /**
-     * Тестовая доска на случай ошибки
-     */
     private static Board createTestBoard() {
         System.err.println("Используется тестовая доска (4 плитки)");
         Board board = new Board();
-        board.addTile(new Tile(1, "bamboo1", 0, 0, 0, "none"));
-        board.addTile(new Tile(2, "bamboo1", 1, 0, 0, "none"));
-        board.addTile(new Tile(3, "bamboo2", 0, 1, 0, "none"));
-        board.addTile(new Tile(4, "bamboo2", 1, 1, 0, "none"));
+        board.addTile(new Tile(1, "bamboos1", 0, 0, 0, "none"));
+        board.addTile(new Tile(2, "bamboos1", 1, 0, 0, "none"));
+        board.addTile(new Tile(3, "bamboos2", 0, 1, 0, "none"));
+        board.addTile(new Tile(4, "bamboos2", 1, 1, 0, "none"));
         return board;
     }
 
@@ -143,7 +155,7 @@ public  class LevelLoader {
 
     private static class LayerData {
         int z;
-        List<TileData> tiles;  // 1 = плитка, 0 = пусто
+        List<TileData> tiles;
     }
 
     private static class TileData {
@@ -152,49 +164,4 @@ public  class LevelLoader {
         String shift;
         transient int z;
     }
-
-    private static class TilePosition {
-        int x, y, z;
-        String shift;
-
-        TilePosition(int x, int y, int z, String shift) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.shift = shift; // смещение
-        }
-    }
-
-    // Временный метод для тестирования
-    public static void main(String[] args) {
-        System.out.println("=== ТЕСТ LEVELLOADER ===\n");
-
-        Board board = loadLevel("levels/turtle.json");
-
-        System.out.println("\n--- Результат ---");
-        System.out.println("Активных плиток: " + board.getActiveCount());
-        System.out.println("Всего плиток: " + board.getAllTiles().size());
-
-        System.out.println("\n--- Первые 5 плиток ---");
-        List<Tile> tiles = board.getAllTiles();
-        for (int i = 0; i < Math.min(5, tiles.size()); i++) {
-            Tile tile = tiles.get(i);
-            System.out.println("ID: " + tile.getId() +
-                    ", Картинка: " + tile.getImageName() +
-                    ", Координаты: (" + tile.getX() + ", " + tile.getY() + ", " + tile.getZ() + ")" +
-                    ", Shift: " + tile.getShift());
-        }
-
-        if (board.getActiveCount() >= 2) {
-            System.out.println("\n--- Проверка удаления пары ---");
-            Tile first = board.getActiveTiles().get(0);
-            Tile second = board.getActiveTiles().get(1);
-            System.out.println("Удаляем плитки: " + first.getId() + " и " + second.getId());
-            board.removePair(first.getId(), second.getId());
-            System.out.println("Осталось активных: " + board.getActiveCount());
-        }
-
-        System.out.println("\n=== ТЕСТ ЗАВЕРШЕН ===");
-    }
 }
-

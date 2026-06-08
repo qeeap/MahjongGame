@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class Tile {
     private final int id;   // Индификатор плитки
-    private final String imageName; // Имя файла изображения
+    private String imageName; // Имя файла изображения (УБРАЛИ FINAL!)
     private final int x; // коорд x
     private final int y; // коорд y
     private final int z; // коорд z - слой
@@ -45,7 +45,7 @@ public class Tile {
         return z;
     }
 
-    public  String getShift() {return shift;}
+    public String getShift() {return shift;}
 
     public boolean isRemoved() {
         return isRemoved;
@@ -53,6 +53,11 @@ public class Tile {
 
     public void setRemoved(boolean removed) {
         isRemoved = removed;
+    }
+
+    // НОВЫЙ МЕТОД - ПРАВИЛЬНАЯ РЕАЛИЗАЦИЯ
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
     }
 
     // переопределение equals, чтобы плитки с одинаковыми id считались равными
@@ -96,6 +101,10 @@ public class Tile {
 
         // Проверяем сравнение
         Tile tile1copy = new Tile(1, "bamboo1", 100, 100, 0, "right");
-        System.out.println("tile1 равен tile1copy? " + tile1.equals(tile1copy)); // Должно быть true, т.к. id одинаковый
+        System.out.println("tile1 равен tile1copy? " + tile1.equals(tile1copy));
+
+        // Проверяем изменение картинки
+        tile1.setImageName("new_bamboo");
+        System.out.println("После изменения картинки: " + tile1.getImageName());
     }
 }

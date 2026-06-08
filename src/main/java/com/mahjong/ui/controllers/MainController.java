@@ -4,6 +4,7 @@ import com.mahjong.model.Board;
 import com.mahjong.ui.views.GameFieldView;
 import com.mahjong.ui.views.MainView;
 import com.mahjong.ui.views.LevelSelectionView;
+import com.mahjong.ui.utils.GameSave;
 import com.mahjong.utils.LevelLoader;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -44,10 +45,9 @@ public class MainController {
             stage.close();
         });
 
-        //ЗАМЕНИТЬ TEST НА DRAGON
         levelSelectView.getLevelDragon().setOnMouseClicked(event -> {
             System.out.println("Выбран уровень: Дракон");
-            startGame("test");
+            startGame("dragon");  // ИСПРАВЛЕНО: было "test"
         });
 
         levelSelectView.getLevelPyramid().setOnMouseClicked(event -> {
@@ -74,10 +74,7 @@ public class MainController {
             System.out.println("Возврат в выбор уровней");
             showLevelSelection();
         });
-
-
     }
-
 
     private void showMainMenu() {
         mainView.setVisible(true);
@@ -95,18 +92,23 @@ public class MainController {
         String jsonPath = "levels/" + levelFileName + ".json";
         System.out.println("Загрузка уровня: " + jsonPath);
 
-        Board board = LevelLoader.loadLevel(jsonPath);
-
-        if (board == null || board.getActiveCount() == 0) {
-            System.err.println("Ошибка: уровень не загружен!");
-            return;
+        // ПРОВЕРЯЕМ, ЕСТЬ ЛИ СОХРАНЕНИЕ ДЛЯ ЭТОГО УРОВНЯ
+        if (GameSave.hasSave(levelFileName)) {
+            System.out.println("Найдено сохранение для уровня " + levelFileName);
+            // Загружаем без board (будет восстановлено из сохранения в GameController)
+            gameController.loadBoard(null, levelFileName);
+        } else {
+            // Новый уровень - загружаем из JSON
+            Board board = LevelLoader.loadLevel(jsonPath);
+            if (board == null || board.getActiveCount() == 0) {
+                System.err.println("Ошибка: уровень не загружен!");
+                return;
+            }
+            gameController.loadBoard(board, levelFileName);
         }
-
-        gameController.loadBoard(board, levelFileName);
 
         mainView.setVisible(false);
         levelSelectView.setVisible(false);
         gameController.show();
     }
 }
-
