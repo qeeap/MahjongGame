@@ -24,28 +24,121 @@ public class GameEngine {
      * @return true, если плитку можно выбрать
      */
 
-    public static boolean isTileFree(Board board, Tile tile){
+    public static boolean isTileFree(Board board, Tile tile) {
         //Если плитка удалена - она недоступна
-        if (tile.isRemoved()){
+        if (tile.isRemoved()) {
             return false;
         }
         int x = tile.getX();
         int y = tile.getY();
         int z = tile.getZ();
+        String shift = tile.getShift();
 
-        List<Tile> above = board.findTilesAtPosition(x, y, z+1);
-        if (!above.isEmpty()){
+        boolean blockedLeft = false;
+        boolean blockedRight = false;
+
+        List<Tile> above = board.findTilesAtPosition(x, y, z + 1);
+        if (!above.isEmpty()) {
             return false; //заблокирована плиткой сверху
         }
 
+        List<Tile> aboveLeft = board.findTilesAtPosition(x - 1, y, z + 1);
+        for (Tile neighborUp : aboveLeft) {
+            if (neighborUp.getShift().equals("right") || neighborUp.getShift().equals("right_down") || neighborUp.getShift().equals("none")) {
+                if (!aboveLeft.isEmpty()) {
+                    System.out.println("Слева мешает на слое выше");
+                    blockedLeft = true;
+                }
+            }
+        }
+
+        List<Tile> aboveDown = board.findTilesAtPosition(x, y - 1, z + 1);
+        for (Tile neighborUp : aboveDown) {
+            if (neighborUp.getShift().equals("down") || neighborUp.getShift().equals("right_down")) {
+                if (!aboveDown.isEmpty()) {
+                    System.out.println("на слое выше плитка над мешает");
+                    return false;
+                }
+            }
+        }
+
+        List<Tile> aboveDiagonal = board.findTilesAtPosition(x - 1, y - 1, z + 1);
+        for (Tile neighborUp : aboveDiagonal) {
+            if (neighborUp.getShift().equals("right_down")) {
+                if (!aboveDiagonal.isEmpty()) {
+                    System.out.println("мешает плитка диагональ лево вверх слой выше");
+                    return false;
+                }
+            }
+        }
+
+        List<Tile> aboveRight = board.findTilesAtPosition(x + 1, y, z + 1);
+        for (Tile neighborUp : aboveRight) {
+            if (neighborUp.getShift().equals("right") || neighborUp.getShift().equals("right_down") || neighborUp.getShift().equals("none")) {
+                if (!aboveRight.isEmpty()) {
+                    System.out.println("мешает плитка справа на слой выше");
+                    blockedRight = true;
+                }
+            }
+        }
+
+
+        if (tile.getShift().equals("down")) {
+            List<Tile> bottomRight = board.findTilesAtPosition(x + 1, y + 1, z);
+            for (Tile neighbor : bottomRight){
+                if (neighbor.getShift().equals("none")){
+                    System.out.println("плитка со смещением вниз, мешает диагональ право ");
+                    blockedRight = true;
+                }
+            }
+        }
+
+        if (tile.getShift().equals("down")) {
+            List<Tile> bottomLeft = board.findTilesAtPosition(x - 1, y + 1, z);
+            for (Tile neighbor : bottomLeft){
+                if (neighbor.getShift().equals("none")){
+                    System.out.println("плитка со смещением вниз мешает диагональ лево");
+                    blockedLeft = true;
+                }
+            }
+        }
+
+
+        List<Tile> diagonalLeftDown = board.findTilesAtPosition(x - 1, y - 1, z);
+        for (Tile neighbor : diagonalLeftDown) {
+            if (neighbor.getShift().equals("down") || neighbor.getShift().equals("right_down")) {
+                System.out.println("мешает диагональ вверх лево смещением вниз, тот же слой");
+                blockedLeft = true;
+            }
+        }
+
+        List<Tile> diagonalRightDown = board.findTilesAtPosition(x + 1, y - 1, z);
+        for (Tile neighbor : diagonalRightDown) {
+            if (neighbor.getShift().equals("down") || neighbor.getShift().equals("right_down")) {
+                System.out.println("мешает диагональ право вверх, тот же слой");
+                blockedRight = true;
+            }
+        }
+
         List<Tile> left = board.findTilesAtPosition(x-1, y, z);
+        if (!left.isEmpty()){
+            blockedLeft = true;
+            System.out.println("слева блокирует");
+        }
+
         List<Tile> right = board.findTilesAtPosition(x+1, y, z);
+        if (!right.isEmpty()){
+            blockedRight = true;
+            System.out.println("справа блокирует");
+        }
 
-        boolean hasLeft = !left.isEmpty();
-        boolean hasRight = !right.isEmpty();
+        //плитка свободна, если не заблокирована с обеих сторон
+        if (blockedLeft && blockedRight){
+            System.out.println("заблокирована с двух сторон");
+            return false;
+        }
 
-        return !hasLeft || !hasRight; //если слева справа занято, то плитка недоступна
-        // если хотя бы с одной стороны свободно - плитку вытаскиваем
+        return true;
     }
 
     /**
