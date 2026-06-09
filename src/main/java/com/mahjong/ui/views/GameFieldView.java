@@ -27,7 +27,7 @@ public class GameFieldView extends Pane {
 
     private ImageView backButton; //каринка кнопки "Вернуться"
     private ImageView restButton; //картинка кнопки "перезагрузить"
-    private ImageView scoreImg; //каринка счета
+    private ImageView scoreImg; //картинка счета
     private ImageView helpButton; //картинка помощи
     private Text scoreText; //текущий счет
     private Rectangle gameBoardRect; //прямоугольник на фоне
@@ -99,7 +99,7 @@ public class GameFieldView extends Pane {
             restButton = new ImageView();
         }
 
-        //кнопка счета
+        //картинка счета
         try {
             Image img = new Image(getClass().getResourceAsStream("/images/score.png"));
             scoreImg = new ImageView(img);
