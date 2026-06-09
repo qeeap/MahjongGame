@@ -212,6 +212,10 @@ public class GameController {
         score += pointsEarned;
         comboCounter++;
 
+        if (comboCounter > maxCombo) {
+            maxCombo = comboCounter;
+        }
+
         System.out.println("+ " + pointsEarned + " очков");
         System.out.println("Всего очков: " + score);
         System.out.println("Комбо: " + comboCounter + " пар подряд");
@@ -299,6 +303,10 @@ public class GameController {
 
                 //победа
                 if (currentBoard.getActiveCount() == 0) {
+                    if (comboCounter > maxCombo) {
+                        maxCombo = comboCounter;
+                    }
+
                     System.out.println("ПОБЕДА! Все плитки удалены");
                     System.out.println("Итоговый счёт: " + score);
                     GameSave.delete(currentLevel);
@@ -308,6 +316,9 @@ public class GameController {
 
                 //поражение
                 if (!GameEngine.hasAnyMove(currentBoard)) {
+                    if (comboCounter > maxCombo) {
+                        maxCombo = comboCounter;
+                    }
                     System.out.println("Игра окончена! Нет доступных ходов");
                     System.out.println("Итоговый счёт: " + score);
                     GameSave.delete(currentLevel);
