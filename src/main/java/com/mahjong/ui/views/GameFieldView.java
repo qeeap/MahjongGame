@@ -28,6 +28,7 @@ public class GameFieldView extends Pane {
     private ImageView backButton; //каринка кнопки "Вернуться"
     private ImageView restButton; //картинка кнопки "перезагрузить"
     private ImageView scoreImg; //каринка счета
+    private ImageView helpButton; //картинка помощи
     private Text scoreText; //текущий счет
     private Rectangle gameBoardRect; //прямоугольник на фоне
     private Board currentBoard; //текущая доска
@@ -109,6 +110,16 @@ public class GameFieldView extends Pane {
             scoreImg = new ImageView();
         }
 
+        //кнопка помощи
+        try {
+            Image img = new Image(getClass().getResourceAsStream("/images/help.png"));
+            helpButton = new ImageView(img);
+            restButton.setStyle("-fx-cursor: hand;");
+        } catch (Exception e) {
+            System.err.println("Картинка счета не загружена: /images/help.png");
+            helpButton = new ImageView();
+        }
+
         //текст счета
         scoreText = new Text("0");
         scoreText.setFont(Font.font("Arial", FontWeight.BOLD, 28));
@@ -137,7 +148,6 @@ public class GameFieldView extends Pane {
         StackPane.setAlignment(backButton, Pos.TOP_LEFT);
         backButton.setFitHeight(screenHeight / 17);
         backButton.setPreserveRatio(true);
-
         backButton.setTranslateX(screenWidth / 30);
         backButton.setTranslateY(screenHeight / 30);
 
@@ -146,6 +156,12 @@ public class GameFieldView extends Pane {
         restButton.setPreserveRatio(true);
         restButton.setTranslateX(screenWidth / 8);
         restButton.setTranslateY(screenHeight / 30);
+
+        StackPane.setAlignment(helpButton, Pos.TOP_LEFT);
+        helpButton.setFitHeight(screenHeight / 17);
+        helpButton.setPreserveRatio(true);
+        helpButton.setTranslateX(screenWidth / 5.5);
+        helpButton.setTranslateY(screenHeight / 30);
 
         positionScoreElements();
 
@@ -158,7 +174,8 @@ public class GameFieldView extends Pane {
         getChildren().add(scoreImg);        // 3. картинка счета
         getChildren().add(scoreText);       // 4. текст счёта
         getChildren().add(backButton);      // 5. кнопка
-        getChildren().add(restButton);
+        getChildren().add(restButton);      // 6. кнопка
+        getChildren().add(helpButton);      // 7. еще кнопка
     }
 
 
@@ -375,6 +392,26 @@ public class GameFieldView extends Pane {
     }
 
     /**
+     * Затемняет две плитки как подсказку
+     * @param tile1 первая плитка
+     * @param tile2 вторая плитка
+     * @param durationMs длительность подсветки в миллисекундах
+     */
+    public void highlightHint(Tile tile1, Tile tile2, int durationMs) {
+        setTileDarkened(tile1, true);
+        setTileDarkened(tile2, true);
+
+        javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(
+                javafx.util.Duration.millis(durationMs)
+        );
+        pause.setOnFinished(event -> {
+            setTileDarkened(tile1, false);
+            setTileDarkened(tile2, false);
+        });
+        pause.play();
+    }
+
+    /**
      * Убираем флаг при выходе из уровня
      */
     public void resetBounds() {
@@ -416,5 +453,6 @@ public class GameFieldView extends Pane {
      */
     public ImageView getBackButton() { return backButton; }
     public ImageView getRestButton() {return restButton; }
+    public ImageView getHelpButton() {return  helpButton; }
 }
 

@@ -21,6 +21,7 @@ public class GameController {
     private Runnable onBackCallback; // колбэк для возврата в меню
     private Board currentBoard; // текущая доска с плитками
     private Tile selectedTile = null; // выбранная плитка
+    private Tile[] currentHint = null; //подсказка
 
     /**
      * Счётчики для системы очков и комбо
@@ -52,6 +53,8 @@ public class GameController {
     /**
      * Настраивает обработчики для кнопок:
      * Кнопка "Назад" - возврат в меню выбора уровней с сохранением прогресса
+     * Кнопка перезагрузки - перезагрузка уровня (удаление сохранения на уровне)
+     * Кнопка "Помощь" - показ случайной возможной пары
      * Клик по плитке - обработка выбора/удаления плитки
      */
     private void setupButtons() {
@@ -78,6 +81,11 @@ public class GameController {
             }
             restartLevel();
 
+        });
+
+        gameFieldView.getHelpButton().setOnMouseClicked(event -> {
+            showHint();
+            comboCounter = 0;
         });
 
         gameFieldView.setOnTileClick(this::handleTileClick);
@@ -115,13 +123,13 @@ public class GameController {
     public void loadBoard(Board board, String levelName) {
         this.currentLevel = levelName;
 
-        // Проверяем наличие сохранения для этого уровня
+        //проверка автосохранения
         GameSave.SaveData saveData = GameSave.load(levelName);
 
         if (saveData != null) {
             System.out.println("Найдено сохранение для уровня '" + levelName + "'! Восстанавливаем...");
 
-            // Если доска не передана, загружаем свежий уровень из JSON
+            //если доска не передана, загружаем свежий уровень из JSON
             if (board == null) {
                 board = LevelLoader.loadLevel("levels/" + levelName + ".json");
                 if (board == null) {
@@ -132,7 +140,7 @@ public class GameController {
 
             this.currentBoard = board;
 
-            // Восстанавливаем состояние каждой плитки из сохранения
+            //восстановление плиток из автосохранения
             for (int i = 0; i < board.getAllTiles().size() && i < saveData.tiles.size(); i++) {
                 Tile tile = board.getAllTiles().get(i);
                 GameSave.TileData savedTile = saveData.tiles.get(i);
@@ -140,7 +148,7 @@ public class GameController {
                 tile.setRemoved(savedTile.isRemoved);
             }
 
-            // Восстанавливаем счёт и комбо
+            //счет и комбо
             this.score = saveData.score;
             this.comboCounter = saveData.comboCounter;
             this.maxCombo = saveData.maxCombo;
@@ -150,7 +158,7 @@ public class GameController {
         } else {
             System.out.println("Новый уровень: " + levelName);
 
-            // Загружаем новый уровень
+            //загрузка
             if (board == null) {
                 board = LevelLoader.loadLevel("levels/" + levelName + ".json");
                 if (board == null) {
@@ -166,7 +174,7 @@ public class GameController {
             gameFieldView.updateScore(0);
         }
 
-        // Сбрасываем состояние и отображаем доску
+        //сброс состояния
         gameFieldView.resetBounds();
         this.selectedTile = null;
         gameFieldView.renderBoard(this.currentBoard);
@@ -244,13 +252,13 @@ public class GameController {
      * @param clickedTile плитка, по которой кликнул игрок
      */
     private void handleTileClick(Tile clickedTile) {
-        // 1. Проверка: плитка уже удалена?
+        //удалена ли плитка
         if (clickedTile.isRemoved()) {
             System.out.println("Плитка уже удалена");
             return;
         }
 
-        // 2. Проверка: плитка доступна для выбора?
+        //доступна ли плитка
         if (!GameEngine.isTileFree(currentBoard, clickedTile)) {
             System.out.println("Плитка заблокирована");
             clearSelection();
@@ -258,7 +266,7 @@ public class GameController {
             return;
         }
 
-        // 3. Нет выбранной плитки - выбираем текущую
+        //выбор текущей если выбора еще не было
         if (selectedTile == null) {
             selectedTile = clickedTile;
             gameFieldView.setTileDarkened(selectedTile, true);
@@ -266,19 +274,19 @@ public class GameController {
             return;
         }
 
-        // 4. Выбрана та же плитка - снимаем выделение
+        //одна и та же - не пара
         if (selectedTile == clickedTile) {
             clearSelection();
             return;
         }
 
-        // 5. Проверяем, образуют ли плитки пару
+        //проверка на пару
         if (GameEngine.canFormPair(currentBoard, selectedTile, clickedTile)) {
             System.out.println("🎉 Пара найдена! Удаляем:");
             System.out.println("  - " + selectedTile.getImageName());
             System.out.println("  - " + clickedTile.getImageName());
 
-            // Удаляем пару через Board
+            //удаление
             boolean pairRemoved = currentBoard.removePair(selectedTile.getId(), clickedTile.getId());
 
             if (pairRemoved) {
@@ -286,10 +294,10 @@ public class GameController {
                 clearSelection();
                 gameFieldView.renderBoard(currentBoard);
 
-                // АВТОСОХРАНЕНИЕ ПОСЛЕ КАЖДОГО ХОДА
+                //АВТОСОХРАНЕНИЕ GAMESAVE
                 GameSave.save(currentBoard, currentLevel, score, comboCounter, maxCombo, LevelLoader.getCurrentSeed());
 
-                // Проверка победы
+                //победа
                 if (currentBoard.getActiveCount() == 0) {
                     System.out.println("ПОБЕДА! Все плитки удалены");
                     System.out.println("Итоговый счёт: " + score);
@@ -298,7 +306,7 @@ public class GameController {
                     return;
                 }
 
-                // Проверка поражения (нет доступных ходов)
+                //поражение
                 if (!GameEngine.hasAnyMove(currentBoard)) {
                     System.out.println("Игра окончена! Нет доступных ходов");
                     System.out.println("Итоговый счёт: " + score);
@@ -346,6 +354,30 @@ public class GameController {
     }
 
     /**
+     * Показывает подсказку — подсвечивает доступную пару на 3 секунды
+     */
+    private void showHint() {
+        if (!GameEngine.hasAnyMove(currentBoard)) {
+            System.out.println("Нет доступных ходов! Подсказка невозможна");
+            return;
+        }
+
+        Tile[] hintPair = GameEngine.getHint(currentBoard);
+
+        if (hintPair != null && hintPair.length == 2) {
+            Tile tile1 = hintPair[0];
+            Tile tile2 = hintPair[1];
+
+            System.out.println("Подсказка: показываем пару (" + tile1.getImageName() +
+                    ", " + tile2.getImageName() + ")");
+
+            gameFieldView.highlightHint(tile1, tile2, 3000);
+        } else {
+            System.out.println("Подсказка не найдена!");
+        }
+    }
+
+    /**
      * Показывает игровое поле (делает его видимым)
      */
     public void show() {
@@ -360,7 +392,7 @@ public class GameController {
     }
 
     /**
-     * Геттеры для доступа к счёту и комбо извне
+     * Геттеры
      */
     public int getScore() { return score; }
     public int getComboCounter() { return comboCounter; }
