@@ -42,7 +42,7 @@ public class GameEngine {
             return false; //заблокирована плиткой сверху
         }
 
-        if (!tile.getShift().equals("right")){
+        if (!tile.getShift().equals("right") && !tile.getShift().equals("right_down")){
             List<Tile> aboveLeft = board.findTilesAtPosition(x - 1, y, z + 1);
             for (Tile neighborUp : aboveLeft) {
                 if (neighborUp.getShift().equals("none")){
@@ -123,20 +123,20 @@ public class GameEngine {
         }
 
 
-        if (tile.getShift().equals("down")) {
+        if (tile.getShift().equals("down") || tile.getShift().equals("right_down")) {
             List<Tile> bottomRight = board.findTilesAtPosition(x + 1, y + 1, z);
             for (Tile neighbor : bottomRight){
-                if (neighbor.getShift().equals("none")){
+                if (neighbor.getShift().equals("none") || neighbor.getShift().equals("right")){
                     System.out.println("плитка со смещением вниз, мешает диагональ право ");
                     blockedRight = true;
                 }
             }
         }
 
-        if (tile.getShift().equals("down")) {
+        if (tile.getShift().equals("down") || tile.getShift().equals("right_down")) {
             List<Tile> bottomLeft = board.findTilesAtPosition(x - 1, y + 1, z);
             for (Tile neighbor : bottomLeft){
-                if (neighbor.getShift().equals("none")){
+                if (neighbor.getShift().equals("none") || neighbor.getShift().equals("right")){
                     System.out.println("плитка со смещением вниз мешает диагональ лево");
                     blockedLeft = true;
                 }
